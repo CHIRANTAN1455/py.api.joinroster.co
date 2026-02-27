@@ -1,0 +1,632 @@
+{
+  "routes": {
+    "domains": [
+      {
+        "domain_name": "auth",
+        "router_prefix": "/auth",
+        "endpoints": [
+          {"method": "POST", "path": "/auth/init", "controller": "AuthController", "middlewares": []},
+          {"method": "POST", "path": "/auth/login", "controller": "AuthController", "middlewares": []},
+          {"method": "POST", "path": "/auth/social", "controller": "AuthController", "middlewares": ["api.strict"]},
+          {"method": "POST", "path": "/auth/register", "controller": "AuthController", "middlewares": ["api.strict"]},
+          {"method": "POST", "path": "/auth/reset", "controller": "AuthController", "middlewares": ["api.strict"]},
+          {"method": "POST", "path": "/auth/new-password", "controller": "AuthController", "middlewares": ["api.strict"]},
+          {"method": "POST", "path": "/auth/linkedin", "controller": "AuthController", "middlewares": ["api.strict"]},
+          {"method": "POST", "path": "/auth/otp/reset", "controller": "AuthController", "middlewares": ["api.otp"]},
+          {"method": "POST", "path": "/auth/otp/verify", "controller": "AuthController", "middlewares": ["api.otp"]},
+          {"method": "POST", "path": "/auth/otp", "controller": "AuthController", "middlewares": ["api.otp", "auth:sanctum"]},
+          {"method": "POST", "path": "/auth/verify", "controller": "AuthController", "middlewares": ["api.otp", "auth:sanctum"]},
+          {"method": "GET", "path": "/auth/chat", "controller": "AuthController", "middlewares": ["api.strict", "auth:sanctum"]},
+          {"method": "POST", "path": "/auth/logout", "controller": "AuthController", "middlewares": ["api.strict", "auth:sanctum"]},
+          {"method": "POST", "path": "/auth/password", "controller": "AuthController", "middlewares": ["api.strict", "auth:sanctum"]},
+          {"method": "POST", "path": "/auth/broadcasting", "controller": "AuthController", "middlewares": ["api.strict", "auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "profile",
+        "router_prefix": "/profile",
+        "endpoints": [
+          {"method": "GET", "path": "/profile", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/profile/statistics", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/profile/social", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/profile/update", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/profile/pricing", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/profile/pricing/no-delete", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/profile/skills", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/profile/jobtypes", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/profile/contentverticals", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/profile/contentverticals/new", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/profile/platforms", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/profile/softwares", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/profile/equipments", "controller": "ProfileController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/profile/creativestyles", "controller": "ProfileController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "chat",
+        "router_prefix": "/chat",
+        "endpoints": [
+          {"method": "GET", "path": "/chat", "controller": "ChatController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/chat/received_messages", "controller": "ChatController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/chat/init/public", "controller": "ChatController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/chat/init", "controller": "ChatController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/chat/{id}", "controller": "ChatController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/chat/{id}", "controller": "ChatController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/chat/admin/custom", "controller": "ChatController", "middlewares": ["auth:sanctum"]},
+          {"method": "PATCH", "path": "/chat/message/{id}", "controller": "ChatController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "matching",
+        "router_prefix": "/matching",
+        "endpoints": [
+          {"method": "GET", "path": "/matching", "controller": "MatchingController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/matching/project/{id}", "controller": "MatchingController", "middlewares": ["auth:sanctum"]},
+          {"method": "PATCH", "path": "/matching/editor", "controller": "MatchingController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/public-matching", "controller": "MatchingController", "middlewares": []},
+          {"method": "GET", "path": "/matching/{id}", "controller": "MatchingController", "middlewares": []},
+          {"method": "GET", "path": "/matching/token/{token}", "controller": "MatchingController", "middlewares": []},
+          {"method": "POST", "path": "/matching", "controller": "MatchingController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/matching/creators", "controller": "MatchingController", "middlewares": ["auth:sanctum"]},
+          {"method": "PATCH", "path": "/matching/{id}", "controller": "MatchingController", "middlewares": ["auth:sanctum"]},
+          {"method": "PATCH", "path": "/matching/admin/{id}", "controller": "MatchingController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "project",
+        "router_prefix": "/project",
+        "endpoints": [
+          {"method": "GET", "path": "/project/public/metadata/{id}/no-auth", "controller": "ProjectController", "middlewares": []},
+          {"method": "GET", "path": "/project/public/{id}/no-auth", "controller": "ProjectController", "middlewares": []},
+          {"method": "GET", "path": "/project/hackathon/{id}/no-auth", "controller": "ProjectController", "middlewares": []},
+          {"method": "GET", "path": "/project/public/no-auth", "controller": "ProjectController", "middlewares": []},
+          {"method": "GET", "path": "/project/hackathon/{id}", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/project", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/project/match-score", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/alert", "controller": "ProjectController", "middlewares": ["auth:sanctum", "api.unlimited"]},
+          {"method": "POST", "path": "/project/alerts/2-days", "controller": "ProjectController", "middlewares": ["auth:sanctum", "api.unlimited"]},
+          {"method": "GET", "path": "/project/public", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/add", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/public/add", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "PATCH", "path": "/project/{id}", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "PATCH", "path": "/project/public/{id}", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/project/{id}", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/project/public/{id}", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/hackathon/public/{id}", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/{id}/cancel", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/{id}/response", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/{id}/status", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/{id}/milestone", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/{id}/deposit", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/{id}/purchase", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/{id}/review", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/{id}/feedback", "controller": "ProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/project/{id}/conversation", "controller": "ProjectController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "project-application",
+        "router_prefix": "/project-application",
+        "endpoints": [
+          {"method": "GET", "path": "/project-application", "controller": "ProjectApplicationController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/project-application/{id}", "controller": "ProjectApplicationController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project-application/add", "controller": "ProjectApplicationController", "middlewares": ["auth:sanctum"]},
+          {"method": "PATCH", "path": "/project-application/{id}", "controller": "ProjectApplicationController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project-application/{id}/note", "controller": "ProjectApplicationController", "middlewares": ["auth:sanctum"]},
+          {"method": "DELETE", "path": "/project-application/note/{id}", "controller": "ProjectApplicationController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project-application/rejection", "controller": "ProjectApplicationController", "middlewares": ["auth:sanctum", "api.unlimited"]}
+        ]
+      },
+      {
+        "domain_name": "user",
+        "router_prefix": "/user",
+        "endpoints": [
+          {"method": "POST", "path": "/user/{id}/slack", "controller": "UserController", "middlewares": ["auth:sanctum", "api.unlimited"]},
+          {"method": "PATCH", "path": "/user/{id}", "controller": "UserController", "middlewares": ["auth:sanctum"]},
+          {"method": "PATCH", "path": "/user/{id}/timezone", "controller": "UserController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/user/{id}/jobtypes", "controller": "UserController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/user/{id}/content-vertical", "controller": "UserController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/user/{id}/platforms", "controller": "UserController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/user/{id}/revert-update-time", "controller": "UserController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/user/{id}/policy-acceptance", "controller": "UserController", "middlewares": ["auth:sanctum"]},
+          {"method": "DELETE", "path": "/user/{id}", "controller": "UserController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/user/referral/{code}", "controller": "UserController", "middlewares": []},
+          {"method": "POST", "path": "/user/notifications/{id}", "controller": "UserController", "middlewares": []}
+        ]
+      },
+      {
+        "domain_name": "customer",
+        "router_prefix": "/customer",
+        "endpoints": [
+          {"method": "POST", "path": "/customer/register", "controller": "CustomerController", "middlewares": []},
+          {"method": "POST", "path": "/customer/sendgrid/webhook", "controller": "CustomerController", "middlewares": ["api.unlimited"]},
+          {"method": "GET", "path": "/customer/by-user", "controller": "CustomerController", "middlewares": []},
+          {"method": "POST", "path": "/customer/upgrade", "controller": "CustomerController", "middlewares": []},
+          {"method": "GET", "path": "/customer/billing", "controller": "CustomerController", "middlewares": []}
+        ]
+      },
+      {
+        "domain_name": "userproject",
+        "router_prefix": "/userproject",
+        "endpoints": [
+          {"method": "GET", "path": "/userproject/public/info", "controller": "UserProjectController", "middlewares": []},
+          {"method": "GET", "path": "/userproject/public", "controller": "UserProjectController", "middlewares": []},
+          {"method": "GET", "path": "/userproject", "controller": "UserProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/userproject/info", "controller": "UserProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/userproject", "controller": "UserProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/userproject/{id}/update", "controller": "UserProjectController", "middlewares": ["auth:sanctum"]},
+          {"method": "DELETE", "path": "/userproject/{id}", "controller": "UserProjectController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "usercreator",
+        "router_prefix": "/usercreator",
+        "endpoints": [
+          {"method": "GET", "path": "/usercreator", "controller": "UserCreatorController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/usercreator/unverified", "controller": "UserCreatorController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/usercreator/content-topics", "controller": "UserCreatorController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/usercreator/search", "controller": "UserCreatorController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/usercreator/similar", "controller": "UserCreatorController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/usercreator", "controller": "UserCreatorController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/usercreator/info", "controller": "UserCreatorController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/usercreator/{id}/projects", "controller": "UserCreatorController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/usercreator/{id}/update", "controller": "UserCreatorController", "middlewares": ["auth:sanctum"]},
+          {"method": "DELETE", "path": "/usercreator/{id}", "controller": "UserCreatorController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/usercreator/colleauges/invite", "controller": "UserCreatorController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/usercreator/group/add", "controller": "UserCreatorController", "middlewares": []},
+          {"method": "GET", "path": "/usercreator/public/info", "controller": "UserCreatorController", "middlewares": []},
+          {"method": "GET", "path": "/usercreator/search/public", "controller": "UserCreatorController", "middlewares": []},
+          {"method": "GET", "path": "/usercreator/public/{username}", "controller": "UserCreatorController", "middlewares": []}
+        ]
+      },
+      {
+        "domain_name": "social",
+        "router_prefix": "/social",
+        "endpoints": [
+          {"method": "GET", "path": "/social", "controller": "UserSocialController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/profile/social/content-topics", "controller": "UserSocialController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/social", "controller": "UserSocialController", "middlewares": ["auth:sanctum"]},
+          {"method": "DELETE", "path": "/social/{id}", "controller": "UserSocialController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "payment",
+        "router_prefix": "/payment",
+        "endpoints": [
+          {"method": "GET", "path": "/payment", "controller": "UserPaymentController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/payment", "controller": "UserPaymentController", "middlewares": ["auth:sanctum"]},
+          {"method": "DELETE", "path": "/payment/{id}", "controller": "UserPaymentController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "userverification",
+        "router_prefix": "/userverification",
+        "endpoints": [
+          {"method": "GET", "path": "/userverification", "controller": "UserVerificationLinkController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/userverification", "controller": "UserVerificationLinkController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/userverification/many", "controller": "UserVerificationLinkController", "middlewares": ["auth:sanctum"]},
+          {"method": "DELETE", "path": "/userverification/{id}", "controller": "UserVerificationLinkController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "referral",
+        "router_prefix": "/referral",
+        "endpoints": [
+          {"method": "GET", "path": "/referral-records", "controller": "ReferralCodeController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/referral-paid-records", "controller": "ReferralCodeController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "admin",
+        "router_prefix": "/admin",
+        "endpoints": [
+          {"method": "GET", "path": "/admin/editors", "controller": "AdminController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/admin/editors/{id}", "controller": "AdminController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/admin/creators/{id}", "controller": "AdminController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/admin/creators", "controller": "AdminController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/admin/projects", "controller": "AdminController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/admin/projects/{id}", "controller": "AdminController", "middlewares": ["auth:sanctum"]},
+          {"method": "DELETE", "path": "/admin/editors/{email}", "controller": "AdminController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/admin/users/email", "controller": "AdminController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "public",
+        "router_prefix": "",
+        "endpoints": [
+          {"method": "POST", "path": "/callback/stripe", "controller": "CallbackController", "middlewares": ["api.unlimited"]},
+          {"method": "POST", "path": "/callback/post-transaction/slack", "controller": "CallbackController", "middlewares": ["api.unlimited"]},
+          {"method": "POST", "path": "/callback/post-transaction/email", "controller": "CallbackController", "middlewares": ["api.unlimited"]},
+          {"method": "POST", "path": "/callback/webflow", "controller": "CallbackController", "middlewares": ["api.unlimited"]},
+          {"method": "POST", "path": "/upload", "controller": "FileUploadController", "middlewares": []},
+          {"method": "POST", "path": "/upload/multiple", "controller": "FileUploadController", "middlewares": []},
+          {"method": "GET", "path": "users/metrics", "controller": "UsersMetricsController", "middlewares": []},
+          {"method": "PATCH", "path": "/pdfsend", "controller": "PdfSend", "middlewares": []},
+          {"method": "GET", "path": "/public-job-listing", "controller": "PublicJobListingController", "middlewares": []},
+          {"method": "PATCH", "path": "/freejobpost", "controller": "FreeJobPostingController", "middlewares": []}
+        ]
+      },
+      {
+        "domain_name": "lookups",
+        "router_prefix": "",
+        "endpoints": [
+          {"method": "GET", "path": "/skills", "controller": "SkillController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/skills/get", "controller": "SkillController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/contentverticals", "controller": "ContentVerticalController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/contentverticals/get", "controller": "ContentVerticalController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/platforms", "controller": "PlatformController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/platforms/get", "controller": "PlatformController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/softwares", "controller": "SoftwareController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/softwares/get", "controller": "SoftwareController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/equipments", "controller": "EquipmentController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/equipments/get", "controller": "EquipmentController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/creativestyles", "controller": "CreativeStyleController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/creativestyles/get", "controller": "CreativeStyleController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/contentforms", "controller": "ContentFormController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/contentforms/get", "controller": "ContentFormController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/projecttypes", "controller": "ProjectTypeController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/projecttypes/{username}", "controller": "ProjectTypeController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/projecttypes/get", "controller": "ProjectTypeController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/jobtypes", "controller": "JobTypeController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/jobtypes/get", "controller": "JobTypeController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/reasons", "controller": "ReasonController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/reasons/get", "controller": "ReasonController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/referrals", "controller": "ReferralController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/referrals/get", "controller": "ReferralController", "middlewares": ["api.lenient"]},
+          {"method": "GET", "path": "/location", "controller": "LocationController", "middlewares": []},
+          {"method": "GET", "path": "/location/{id}", "controller": "LocationController", "middlewares": []}
+        ]
+      },
+      {
+        "domain_name": "editor",
+        "router_prefix": "/editor",
+        "endpoints": [
+          {"method": "ANY", "path": "/editor", "controller": "EditorController", "middlewares": []},
+          {"method": "GET", "path": "/editor/{id}", "controller": "EditorController", "middlewares": []},
+          {"method": "GET", "path": "/editor/metadata/{id}", "controller": "EditorController", "middlewares": []},
+          {"method": "GET", "path": "/editor/{id}/projects", "controller": "EditorController", "middlewares": []},
+          {"method": "GET", "path": "/editor/{id}/creators", "controller": "EditorController", "middlewares": []},
+          {"method": "GET", "path": "/editor/{id}/jobtypes", "controller": "EditorController", "middlewares": []},
+          {"method": "GET", "path": "/editor/{id}/reviews", "controller": "EditorController", "middlewares": []},
+          {"method": "POST", "path": "/editor/store", "controller": "EditorController", "middlewares": []},
+          {"method": "POST", "path": "/editor/admin/reset-password", "controller": "EditorController", "middlewares": []},
+          {"method": "POST", "path": "/editor/email/{id}", "controller": "EditorController", "middlewares": []},
+          {"method": "POST", "path": "/editor/profile/bulk-email/{id}", "controller": "EditorController", "middlewares": ["api.unlimited"]},
+          {"method": "GET", "path": "/editor/{id}/related", "controller": "EditorController", "middlewares": []}
+        ]
+      },
+      {
+        "domain_name": "favourite",
+        "router_prefix": "/favourite",
+        "endpoints": [
+          {"method": "GET", "path": "/favourite", "controller": "FavouriteController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/favourite", "controller": "FavouriteController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "file",
+        "router_prefix": "/file",
+        "endpoints": [
+          {"method": "POST", "path": "/file", "controller": "FileController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "questionnaire",
+        "router_prefix": "/questionnaire",
+        "endpoints": [
+          {"method": "GET", "path": "/questionnaire/{id}", "controller": "QuestionnaireController", "middlewares": []},
+          {"method": "POST", "path": "/questionnaire/add", "controller": "QuestionnaireController", "middlewares": []}
+        ]
+      },
+      {
+        "domain_name": "project-screening",
+        "router_prefix": "/project",
+        "endpoints": [
+          {"method": "GET", "path": "/project/{projectUuid}/screening-questions", "controller": "ProjectScreeningQuestionController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/project/{projectUuid}/screening-questions", "controller": "ProjectScreeningQuestionController", "middlewares": ["auth:sanctum"]},
+          {"method": "GET", "path": "/project/{projectUuid}/screening-questions/{questionUuid}", "controller": "ProjectScreeningQuestionController", "middlewares": ["auth:sanctum"]},
+          {"method": "PATCH", "path": "/project/{projectUuid}/screening-questions/{questionUuid}", "controller": "ProjectScreeningQuestionController", "middlewares": ["auth:sanctum"]},
+          {"method": "DELETE", "path": "/project/{projectUuid}/screening-questions/{questionUuid}", "controller": "ProjectScreeningQuestionController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "job-posting-edit",
+        "router_prefix": "/job-posting",
+        "endpoints": [
+          {"method": "PATCH", "path": "/job-posting/edit/{uuid}", "controller": "JobPostingEditController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "user-to-do",
+        "router_prefix": "/user-to-do",
+        "endpoints": [
+          {"method": "GET", "path": "/user-to-do", "controller": "UserToDoController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/user-to-do", "controller": "UserToDoController", "middlewares": ["auth:sanctum"]},
+          {"method": "PATCH", "path": "/user-to-do/{id}", "controller": "UserToDoController", "middlewares": ["auth:sanctum"]},
+          {"method": "DELETE", "path": "/user-to-do/{id}", "controller": "UserToDoController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "shortlist",
+        "router_prefix": "/shortlist",
+        "endpoints": [
+          {"method": "GET", "path": "/shortlist", "controller": "EditorShortlistController", "middlewares": ["auth:sanctum"]},
+          {"method": "PATCH", "path": "/shortlist/{id}", "controller": "EditorShortlistController", "middlewares": ["auth:sanctum"]},
+          {"method": "DELETE", "path": "/shortlist/{id}", "controller": "EditorShortlistController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "profile-visit",
+        "router_prefix": "/profile-visit",
+        "endpoints": [
+          {"method": "POST", "path": "/profile-visit", "controller": "ProfileVisitController", "middlewares": ["auth:sanctum"]}
+        ]
+      },
+      {
+        "domain_name": "data",
+        "router_prefix": "/data",
+        "endpoints": [
+          {"method": "POST", "path": "/data/editor", "controller": "DataController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/data/country", "controller": "DataController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/data/state", "controller": "DataController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/data/city", "controller": "DataController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/data/location", "controller": "DataController", "middlewares": ["auth:sanctum"]},
+          {"method": "POST", "path": "/data/editor/invite", "controller": "DataController", "middlewares": ["auth:sanctum"]}
+        ]
+      }
+    ]
+  },
+  "models": {
+    "User": {
+      "table": "users",
+      "fillable": ["first_name", "last_name", "name", "dob", "gender", "email", "email_verified_at", "phone", "phone_verified_at", "verified_at", "username", "company", "job_title", "fun_fact", "address", "city", "country", "latitiude", "longitude", "timezone", "utc_offset", "password", "account_type", "referral_code", "discount_code", "open_for_work", "reference", "active", "created_at", "updated_at", "resume", "resume_updated_at", "worked_with_creators", "new_onboarding", "via_affiliate", "referral_discount_amount", "referral_discount_type", "referral_discount_interval", "import_via_linkedin", "import_via_resume", "sign_up_path", "photo", "activated_by", "completion_status", "policy_accepted", "policy_accepted_at"],
+      "casts": {"email_verified_at": "datetime", "phone_verified_at": "datetime", "verified_at": "datetime", "policy_accepted_at": "datetime"},
+      "hidden": ["password", "remember_token"],
+      "soft_deletes": false,
+      "timestamps": true,
+      "relationships": [
+        {"type": "belongsToMany", "target": "Role", "pivot_table": "user_roles"},
+        {"type": "hasOne", "target": "UserPricing", "foreign_key": "user_id"},
+        {"type": "hasMany", "target": "UserJobTypePricing", "foreign_key": "user_id"},
+        {"type": "belongsToMany", "target": "Skill", "pivot_table": "user_skills"},
+        {"type": "hasMany", "target": "UserLanguage", "foreign_key": "user_id"},
+        {"type": "belongsToMany", "target": "JobType", "pivot_table": "user_job_types"},
+        {"type": "belongsToMany", "target": "ContentVertical", "pivot_table": "user_content_verticals"},
+        {"type": "belongsToMany", "target": "CreativeStyle", "pivot_table": "user_creative_styles"},
+        {"type": "belongsToMany", "target": "Platform", "pivot_table": "user_platforms"},
+        {"type": "belongsToMany", "target": "Software", "pivot_table": "user_software"},
+        {"type": "belongsToMany", "target": "Equipment", "pivot_table": "user_equipment"},
+        {"type": "belongsToMany", "target": "User", "pivot_table": "user_favourites", "foreign_key": "user_id", "related_key": "favourite_user_id"},
+        {"type": "hasMany", "target": "UserProject", "foreign_key": "user_id"},
+        {"type": "hasMany", "target": "Project", "foreign_key": "user_id"},
+        {"type": "hasMany", "target": "UserCreator", "foreign_key": "user_id"},
+        {"type": "hasOne", "target": "UserSocialProfile", "foreign_key": "user_id"},
+        {"type": "hasOne", "target": "UserSocial", "foreign_key": "user_id"},
+        {"type": "hasMany", "target": "UserVerificationLink", "foreign_key": "user_id"},
+        {"type": "hasMany", "target": "UserEmailUnsubscription", "foreign_key": "user_id"},
+        {"type": "hasOne", "target": "Customer", "foreign_key": "user_id"},
+        {"type": "hasMany", "target": "ProjectApplication", "foreign_key": "user_id"},
+        {"type": "hasMany", "target": "Transaction", "foreign_key": "user_id"},
+        {"type": "hasOne", "target": "ReferralCode", "foreign_key": "user_id"},
+        {"type": "hasMany", "target": "ReferralCode", "foreign_key": "referrer_id"}
+      ],
+      "scopes": ["scopeWithMissingFields", "scopeWithoutMissingFields"],
+      "accessors_mutators": ["getPhotoAttribute", "getResumeAttribute", "getMissingFieldsAttribute", "getMissingOptionalFieldsAttribute", "getProductionRoleAttribute", "getReferrerAttribute", "getHasCompletedVerificationAttribute"]
+    },
+    "Project": {
+      "table": "projects",
+      "fillable": ["user_id", "editor_id", "title", "custom_title", "description", "budget", "budget_per", "start_date", "end_date", "revisions", "status", "flow", "match_token", "utc_offset", "timezone", "city", "country", "working_location", "interested_in", "published", "accepted_at", "notify_editors", "min_budget", "max_budget", "open_to_negotiate", "alert_email_title", "hackathon", "assignment_url", "assignment_type", "banner_image", "logo", "faqs", "prizes", "requirements", "meta_title", "meta_description", "meta_img", "showCoverLetterQuestion", "subtitle", "required_languages", "require_toc", "toc_doc_id", "currency", "hire_source", "hired_editor_ids", "interviewed_editor_ids", "closed_at", "offer_date", "custom_rejection_message", "sent_rejection_email", "to_send_rejection_email", "rating", "feedback", "upload_constraints"],
+      "casts": {"interested_in": "array", "start_date": "datetime", "end_date": "datetime", "faqs": "array", "prizes": "array", "required_languages": "array", "hired_editor_ids": "array", "interviewed_editor_ids": "array", "upload_constraints": "array"},
+      "hidden": ["id"],
+      "soft_deletes": true,
+      "timestamps": true,
+      "relationships": [
+        {"type": "belongsTo", "target": "User", "foreign_key": "user_id"},
+        {"type": "belongsTo", "target": "User", "foreign_key": "editor_id"},
+        {"type": "hasMany", "target": "ProjectHistory", "foreign_key": "project_id"},
+        {"type": "hasOne", "target": "ProjectFeedbackUser", "foreign_key": "project_id"},
+        {"type": "hasOne", "target": "ProjectFeedbackEditor", "foreign_key": "project_id"},
+        {"type": "hasMany", "target": "ProjectMilestone", "foreign_key": "project_id"},
+        {"type": "hasManyThrough", "target": "ContentForm", "pivot_table": "project_content_forms"},
+        {"type": "hasManyThrough", "target": "Platform", "pivot_table": "project_platforms"},
+        {"type": "hasMany", "target": "ProjectReference", "foreign_key": "project_id"},
+        {"type": "hasMany", "target": "ProjectJobType", "foreign_key": "project_id"},
+        {"type": "hasManyThrough", "target": "Skill", "pivot_table": "project_skills"},
+        {"type": "hasManyThrough", "target": "ContentVertical", "pivot_table": "project_content_verticals"},
+        {"type": "hasManyThrough", "target": "Software", "pivot_table": "project_software"},
+        {"type": "hasManyThrough", "target": "CreativeStyle", "pivot_table": "project_creative_styles"},
+        {"type": "hasMany", "target": "ProjectApplication", "foreign_key": "project_id"},
+        {"type": "hasMany", "target": "Matching", "foreign_key": "project_id"},
+        {"type": "hasMany", "target": "ProjectScreeningQuestion", "foreign_key": "project_id"}
+      ],
+      "scopes": [],
+      "accessors_mutators": ["getLogoAttribute", "getBannerImageAttribute", "getExpiryDateAttribute"]
+    },
+    "schema": {
+      "example_table": "projects",
+      "columns": ["id", "uuid", "user_id", "editor_id", "title", "description", "budget", "budget_per", "start_date", "end_date", "revisions", "utc_offset", "timezone", "city", "country", "status", "published", "working_location", "interested_in", "accepted_at", "notify_editors", "min_budget", "max_budget", "open_to_negotiate", "alert_email_title", "custom_title", "curreny", "required_languages", "created_at", "updated_at", "deleted_at"],
+      "pivot_tables": ["user_roles", "user_skills", "user_job_types", "user_content_verticals", "user_creative_styles", "user_platforms", "user_software", "user_equipment", "user_favourites", "project_content_forms", "project_platforms", "project_skills", "project_content_verticals", "project_software", "project_creative_styles", "project_job_types", "user_social_profile_content_topics", "user_creator_content_topics", "user_project_content_topics", "matching_content_verticals"]
+    }
+  },
+  "controllers": {
+    "AuthController": {
+      "class": "App\\Http\\Controllers\\Api\\AuthController",
+      "methods": {
+        "init": {"purpose": "Check if user exists for email/phone to determine login vs register", "http_endpoints": ["/auth/init"], "http_methods": ["POST"], "request_body_params": ["email", "phone"], "response_shape": {"status": "string", "action": "login|register", "message": "string"}, "services": ["AuthService.search"], "validation_rules": [], "dependencies": ["AuthService"], "auth": {"guard": null, "middleware": []}},
+        "login": {"purpose": "Authenticate user with username and password", "http_endpoints": ["/auth/login"], "http_methods": ["POST"], "request_body_params": ["username", "password"], "response_shape": {"status": "string", "user": "object", "access_token": "string", "token_type": "Bearer"}, "services": ["AuthService.login"], "validation_rules": {"username": "required|max:255", "password": "required|max:255"}, "dependencies": ["AuthService", "UserService", "FileService", "LogService", "UserSocialService"], "auth": {"guard": null, "middleware": []}},
+        "social": {"purpose": "Authenticate or register via OAuth provider", "http_endpoints": ["/auth/social"], "http_methods": ["POST"], "request_body_params": ["access_token", "provider", "referral_code_used"], "response_shape": {"status": "string", "user": "object", "access_token": "string", "token_type": "Bearer"}, "services": ["AuthService.social"], "validation_rules": {"access_token": "required", "provider": "required|in:..."}, "dependencies": ["AuthService", "UserService", "LogService", "UserSocialService"], "auth": {"guard": null, "middleware": ["api.strict"]}},
+        "register": {"purpose": "Register new user with email and password", "http_endpoints": ["/auth/register"], "http_methods": ["POST"], "request_body_params": ["email", "phone", "password", "referral_code_used", "policy_accepted"], "response_shape": {"status": "string", "user": "object", "access_token": "string", "token_type": "Bearer"}, "services": ["AuthService.register"], "validation_rules": {"email": "required|unique:users|max:255", "password": "required|max:255", "policy_accepted": "required|boolean"}, "dependencies": ["AuthService", "LogService"], "auth": {"guard": null, "middleware": ["api.strict"]}},
+        "reset": {"purpose": "Reset password using OTP", "http_endpoints": ["/auth/reset"], "http_methods": ["POST"], "request_body_params": ["email", "password", "otp"], "response_shape": {"status": "string", "message": "string"}, "services": ["AuthService.resetPassword"], "validation_rules": {"email": "required|exists:users,email|max:255", "password": "required|max:255", "otp": "required|max:255"}, "dependencies": ["AuthService", "UserService", "LogService"], "auth": {"guard": null, "middleware": ["api.strict"]}},
+        "newPassword": {"purpose": "Set new password from token", "http_endpoints": ["/auth/new-password"], "http_methods": ["POST"], "request_body_params": ["token", "password"], "response_shape": {"status": "string", "user": "object", "access_token": "string"}, "services": ["UserService.newPassword"], "validation_rules": {"token": "required", "password": "required"}, "dependencies": ["UserService", "LogService"], "auth": {"guard": null, "middleware": ["api.strict"]}},
+        "otp": {"purpose": "Send OTP to user email", "http_endpoints": ["/auth/otp"], "http_methods": ["POST"], "request_body_params": ["email"], "response_shape": {"status": "string", "message": "string"}, "services": ["AuthService.otp"], "validation_rules": {"email": "required|unique:users,email,{id}|max:255"}, "dependencies": ["AuthService", "UserService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["api.otp", "auth:sanctum"]}},
+        "verify": {"purpose": "Verify OTP for authenticated user", "http_endpoints": ["/auth/verify"], "http_methods": ["POST"], "request_body_params": ["otp"], "response_shape": {"status": "string", "message": "string", "user": "object"}, "services": ["AuthService.verify"], "validation_rules": {"otp": "required|min:4"}, "dependencies": ["AuthService", "UserService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["api.otp", "auth:sanctum"]}},
+        "verifyotp": {"purpose": "Verify OTP by email (unauthenticated)", "http_endpoints": ["/auth/otp/verify"], "http_methods": ["POST"], "request_body_params": ["email", "otp"], "response_shape": {"status": "string", "message": "string"}, "services": ["AuthService.verify"], "validation_rules": {"email": "required|exists:users,email|max:255", "otp": "required|min:4"}, "dependencies": ["AuthService", "UserService", "LogService"], "auth": {"guard": null, "middleware": ["api.otp"]}},
+        "resetotp": {"purpose": "Request OTP reset for password reset", "http_endpoints": ["/auth/otp/reset"], "http_methods": ["POST"], "request_body_params": ["email"], "response_shape": {"status": "string", "message": "string"}, "services": ["AuthService.otp"], "validation_rules": {"email": "required|exists:users,email|max:255"}, "dependencies": ["AuthService", "UserService", "LogService"], "auth": {"guard": null, "middleware": ["api.otp"]}},
+        "logout": {"purpose": "Revoke tokens and invalidate session", "http_endpoints": ["/auth/logout"], "http_methods": ["POST"], "request_body_params": [], "response_shape": {"status": "string", "message": "string"}, "services": [], "validation_rules": [], "dependencies": [], "auth": {"guard": "sanctum", "middleware": ["api.strict", "auth:sanctum"]}},
+        "password": {"purpose": "Change password for authenticated user", "http_endpoints": ["/auth/password"], "http_methods": ["POST"], "request_body_params": ["current_password", "new_password", "confirm_password"], "response_shape": {"status": "string", "message": "string"}, "services": ["UserService.password"], "validation_rules": {"current_password": "required", "new_password": "required", "confirm_password": "required|same:new_password"}, "dependencies": ["UserService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["api.strict", "auth:sanctum"]}},
+        "broadcasting": {"purpose": "Get broadcasting auth payload for user", "http_endpoints": ["/auth/broadcasting"], "http_methods": ["POST"], "request_body_params": [], "response_shape": "UserBroadcastingResource", "services": ["UserService.get"], "dependencies": ["UserService"], "auth": {"guard": "sanctum", "middleware": ["api.strict", "auth:sanctum"]}}
+      }
+    },
+    "ProjectController": {
+      "class": "App\\Http\\Controllers\\Api\\ProjectController",
+      "methods": {
+        "index": {"purpose": "List projects for authenticated user", "http_endpoints": ["/project"], "http_methods": ["GET"], "request_body_params": [], "response_shape": {"status": "string", "projects": "array", "total": "int", "page": "int", "metrics": "object"}, "services": ["ProjectService.search", "ProjectService.statusMetrics"], "validation_rules": [], "dependencies": ["UserService", "EditorService", "ProjectService", "ProjectApplicationService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "get": {"purpose": "Get single project by UUID (owner or editor)", "http_endpoints": ["/project/{id}"], "http_methods": ["GET"], "request_body_params": [], "response_shape": {"status": "string", "project": "ProjectResource"}, "services": ["ProjectService.getByUuid"], "validation_rules": [], "dependencies": ["UserService", "ProjectService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "getPublicProject": {"purpose": "Get public project by UUID with match and application", "http_endpoints": ["/project/public/{id}"], "http_methods": ["GET"], "request_body_params": [], "response_shape": {"status": "string", "project": "PublicProjectResource", "application": "object|null"}, "services": ["ProjectService.getPublicByUuid", "ProjectService.calculateMatch", "ProjectApplicationService.get"], "validation_rules": [], "dependencies": ["UserService", "ProjectService", "ProjectApplicationService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "getPublicProjectWithoutAuth": {"purpose": "Get public project without authentication", "http_endpoints": ["/project/public/{id}/no-auth"], "http_methods": ["GET"], "request_body_params": [], "response_shape": {"status": "string", "project": "PublicProjectResource"}, "services": ["ProjectService.getPublicByUuid"], "validation_rules": [], "dependencies": ["ProjectService"], "auth": {"guard": null, "middleware": []}},
+        "store": {"purpose": "Create new project with editors", "http_endpoints": ["/project/add"], "http_methods": ["POST"], "request_body_params": ["editors", "title", "description", "budget", "revisions", "content_forms", "platforms", "milestones", "previous_references", "inspiration_references"], "response_shape": {"status": "string", "project": "ProjectResource"}, "services": ["EditorService.getByUuid", "EditorService.isActivated", "ProjectService.create"], "validation_rules": {"title": "required|max:255", "description": "required", "content_forms.*": "required|distinct|exists:content_forms,uuid|max:255"}, "dependencies": ["UserService", "EditorService", "ProjectService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "storePublicProject": {"purpose": "Create public job posting", "http_endpoints": ["/project/public/add"], "http_methods": ["POST"], "request_body_params": ["title", "custom_title", "description", "budget", "min_budget", "max_budget", "platforms", "job_types", "skills", "content_verticals", "milestones"], "response_shape": {"status": "string", "project": "PublicProjectResource"}, "services": ["ProjectService.publicCreate"], "validation_rules": {"title": "required|max:255", "description": "required", "platforms": "required", "job_types": "required", "skills": "required", "content_verticals": "required"}, "dependencies": ["UserService", "ProjectService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "update": {"purpose": "Update project (owner only)", "http_endpoints": ["/project/{id}"], "http_methods": ["PATCH"], "request_body_params": ["title", "description", "budget", "min_budget", "max_budget", "revisions", "content_forms", "platforms", "milestones", "previous_references", "inspiration_references"], "response_shape": {"status": "string", "project": "ProjectResource"}, "services": ["ProjectService.getByUuid", "ProjectService.update"], "validation_rules": {"title": "required|max:255", "description": "required", "budget": "required|numeric"}, "dependencies": ["UserService", "ProjectService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "updatePublicProject": {"purpose": "Update public project", "http_endpoints": ["/project/public/{id}"], "http_methods": ["PATCH"], "request_body_params": ["title", "description", "budget", "editor_id", "status", "previous_references", "inspiration_references"], "response_shape": {"status": "string", "project": "ProjectResource"}, "services": ["ProjectService.getByUuid", "ProjectService.update"], "validation_rules": {}, "dependencies": ["UserService", "ProjectService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "cancel": {"purpose": "Cancel project", "http_endpoints": ["/project/{id}/cancel"], "http_methods": ["POST"], "request_body_params": ["reason"], "response_shape": {"status": "string", "project": "ProjectResource"}, "services": ["ProjectService.cancel"], "validation_rules": {"reason": "nullable"}, "dependencies": ["UserService", "ProjectService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "response": {"purpose": "Accept or reject project (editor response)", "http_endpoints": ["/project/{id}/response"], "http_methods": ["POST"], "request_body_params": ["status", "reason"], "response_shape": {"status": "string", "project": "ProjectResource"}, "services": ["ProjectService.response"], "validation_rules": {"status": "required|in:accepted,rejected", "reason": "required_if:status,reject"}, "dependencies": ["UserService", "ProjectService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "status": {"purpose": "Update project status (started/completed)", "http_endpoints": ["/project/{id}/status"], "http_methods": ["POST"], "request_body_params": ["status", "reason"], "response_shape": {"status": "string", "project": "ProjectResource"}, "services": ["ProjectService.status"], "validation_rules": {"status": "required|in:started,completed"}, "dependencies": ["UserService", "ProjectService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "milestone": {"purpose": "Update milestone status", "http_endpoints": ["/project/{id}/milestone"], "http_methods": ["POST"], "request_body_params": ["status", "milestone"], "response_shape": {"status": "string", "project": "ProjectResource"}, "services": ["ProjectService.milestone"], "validation_rules": {"status": "required|in:pending,completed", "milestone": "required|exists:project_milestones,uuid|max:255"}, "dependencies": ["UserService", "ProjectService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "deposit": {"purpose": "Create deposit for project", "http_endpoints": ["/project/{id}/deposit"], "http_methods": ["POST"], "request_body_params": ["gateway"], "response_shape": {"status": "string", "result": {"checkout_url": "string", "transaction": "object"}}, "services": ["ProjectService.deposit"], "validation_rules": {"gateway": "required|in:stripe"}, "dependencies": ["UserService", "ProjectService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "purchase": {"purpose": "Purchase for project", "http_endpoints": ["/project/{id}/purchase"], "http_methods": ["POST"], "request_body_params": ["gateway", "payment_type"], "response_shape": {"status": "string", "result": "object"}, "services": ["ProjectService.purchase"], "validation_rules": {"gateway": "required|in:stripe", "payment_type": "required|in:one-time,lite-subscription,premium-subscription"}, "dependencies": ["UserService", "ProjectService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "review": {"purpose": "Submit project review (user)", "http_endpoints": ["/project/{id}/review"], "http_methods": ["POST"], "request_body_params": ["responsiveness_communication", "creative_direction", "quality_of_work", "attention_to_detail", "turnaround_time", "service_value", "work_again", "review"], "response_shape": {"status": "string", "review": "ProjectFeedbackUserResource"}, "services": ["ProjectService.review"], "validation_rules": {"responsiveness_communication": "required|numeric|min:1|max:5", "review": "required"}, "dependencies": ["UserService", "ProjectService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "feedback": {"purpose": "Submit project feedback (editor)", "http_endpoints": ["/project/{id}/feedback"], "http_methods": ["POST"], "request_body_params": ["worked_with", "responsiveness_communication", "creative_direction", "working_together", "turnaround_time", "work_again", "review"], "response_shape": {"status": "string", "feedback": "ProjectFeedbackEditorResource"}, "services": ["ProjectService.feedback"], "validation_rules": {"worked_with": "required|max:255", "review": "required"}, "dependencies": ["UserService", "ProjectService", "LogService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}},
+        "calculateMatchScore": {"purpose": "Calculate match score between user and project", "http_endpoints": ["/project/match-score"], "http_methods": ["GET"], "request_body_params": ["user_id", "project_id"], "response_shape": {"status": "string", "match": "object"}, "services": ["ProjectService.calculateMatch"], "validation_rules": [], "dependencies": ["UserService", "ProjectService"], "auth": {"guard": "sanctum", "middleware": ["auth:sanctum"]}}
+      }
+    }
+  },
+  "middleware": {
+    "global": ["TrustProxies", "HandleCors", "PreventRequestsDuringMaintenance", "ValidatePostSize", "TrimStrings", "ConvertEmptyStringsToNull", "SentryStatusCodeMiddleware"],
+    "groups": {
+      "api": ["EnsureFrontendRequestsAreStateful", "api.rate.limit:60,1", "SubstituteBindings"],
+      "api.strict": ["EnsureFrontendRequestsAreStateful", "api.rate.limit:10,1", "SubstituteBindings"],
+      "api.lenient": ["EnsureFrontendRequestsAreStateful", "api.rate.limit:120,1", "SubstituteBindings"],
+      "api.unlimited": ["EnsureFrontendRequestsAreStateful", "SubstituteBindings"],
+      "api.otp": ["EnsureFrontendRequestsAreStateful", "otp.rate.limit", "SubstituteBindings"],
+      "web": ["EncryptCookies", "AddQueuedCookiesToResponse", "StartSession", "ShareErrorsFromSession", "VerifyCsrfToken", "SubstituteBindings"]
+    },
+    "route_middleware": {
+      "auth": "Authenticate",
+      "auth.basic": "AuthenticateWithBasicAuth",
+      "auth.session": "AuthenticateSession",
+      "cache.headers": "SetCacheHeaders",
+      "can": "Authorize",
+      "guest": "RedirectIfAuthenticated",
+      "password.confirm": "RequirePassword",
+      "signed": "ValidateSignature",
+      "throttle": "ThrottleRequests",
+      "api.rate.limit": "ApiRateLimit",
+      "otp.rate.limit": "OtpRateLimit",
+      "verified": "EnsureEmailIsVerified"
+    },
+    "sanctum": {"EnsureFrontendRequestsAreStateful": "Laravel\\Sanctum\\Http\\Middleware\\EnsureFrontendRequestsAreStateful"},
+    "throttling": {
+      "ApiRateLimit": {"class": "App\\Http\\Middleware\\ApiRateLimit", "params": "maxAttempts,decayMinutes,prefix", "excludes": "route_patterns,ips,user_agents"},
+      "OtpRateLimit": {"class": "App\\Http\\Middleware\\OtpRateLimit", "limits": {"otp/reset": "3 per hour", "otp/verify": "5 per 15 min", "otp": "2 per hour"}}
+    },
+    "custom": {"SentryStatusCodeMiddleware": "Captures 5xx responses and sends to Sentry; excludes N+1 query errors"}
+  },
+  "jobs_events": {
+    "jobs": [
+      {"class": "App\\Jobs\\ProcessUserCreatorRefresh", "queue": "default", "payload": "UserCreatorRefreshJob batch, SocialMediaApiKey", "purpose": "Refresh user creator stats (e.g. YouTube followers) using quota"},
+      {"class": "App\\Jobs\\ProcessUserProjectRefresh", "queue": "default", "payload": "UserProjectRefreshJob batch, SocialMediaApiKey", "purpose": "Refresh user project stats"},
+      {"class": "App\\Jobs\\StoreUserCreatorIcon", "queue": "default", "payload": "unknown", "purpose": "Store user creator icon"},
+      {"class": "App\\Jobs\\UpdateSocialProfiles", "queue": "default", "payload": "unknown", "purpose": "Update social profiles"}
+    ],
+    "events": [
+      {"class": "App\\Events\\ChatEvent", "broadcast_channel": "dynamic Channel(channel)", "payload": "senderId, chat, channel"},
+      {"class": "App\\Events\\ChatMessageEvent", "broadcast_channel": "dynamic Channel(channel)", "payload": "message, channel"}
+    ],
+    "notifications": [
+      {"class": "App\\Notifications\\NewLead", "channels": ["slack"], "payload": "content"},
+      {"class": "App\\Notifications\\SmsAlert", "channels": ["SmsChannel"], "payload": "recipient, message"}
+    ],
+    "schedules": {
+      "definition_file": "app/Console/Kernel.php",
+      "scheduled_commands": [
+        "editor:invite (everyFiveMinutes)",
+        "project:alert (everyFifteenMinutes production)",
+        "chat:first-message 3,5,7 (everyThirtyMinutes production)",
+        "queue-check:status (everyThreeHours production)",
+        "customers:update-expired (everySixHours production)",
+        "close-expiring-project:alert (dailyAt 08:00 production)",
+        "complete-profile:nudge (dailyAt 12:00 and 00:00 when activation_email)",
+        "complete-profile-skip-setup-with-app:nudge",
+        "complete-profile-skip-setup-without-app:nudge",
+        "free-customer:alert (dailyAt 12:00)",
+        "abandoned-project:alert (dailyAt 13:00)",
+        "generate-linkedin-job:alert (dailyAt 1:00)",
+        "user-social-profile:update (cron 0 0 */3 * *)"
+      ]
+    }
+  },
+  "services": {
+    "AuthService": {
+      "responsibility": "Authentication: search user by identifier, login, social OAuth, register, OTP, verify, reset password, get chat token",
+      "key_methods": [
+        {"name": "search", "input": "string identifier (email or phone)", "output": "User|null", "description": "Find user by email or phone"},
+        {"name": "login", "input": "credentials (username, password)", "output": "User|null", "description": "Authenticate with username/password"},
+        {"name": "social", "input": "credentials (provider, access_token, referral_code_used, etc.)", "output": "User|null", "description": "Authenticate or register via OAuth (google, facebook, linkedin)"},
+        {"name": "register", "input": "Request", "output": "User|null", "description": "Create user and send verification OTP"},
+        {"name": "otp", "input": "user, request, reset", "output": "string code", "description": "Generate/send OTP and optionally send reset email"},
+        {"name": "verify", "input": "user, otp, type, update", "output": "bool", "description": "Verify OTP and optionally set email_verified_at and active"},
+        {"name": "resetPassword", "input": "user, otp, password", "output": "bool", "description": "Reset user password after OTP verify"},
+        {"name": "getChatToken", "input": "user", "output": "string|null", "description": "Create GetStream chat token for user"}
+      ],
+      "external_integrations": ["Laravel Socialite (Google, Facebook)", "LinkedIn OAuth API", "GetStream Chat", "Mail (Verification, Reset)"]
+    },
+    "ProjectService": {
+      "responsibility": "Project CRUD, public jobs, status/workflow, milestones, deposit/purchase, review/feedback, match calculation, alerts",
+      "key_methods_inferred_from_controllers": [
+        {"name": "search", "input": "user_id, request", "output": "object (projects, total, page)", "description": "Search projects for user"},
+        {"name": "publicSearch", "input": "request, user", "output": "object (projects, total, page)", "description": "Search public projects"},
+        {"name": "publicSearchNoAuth", "input": "request", "output": "object (projects, total, page)", "description": "Search public projects without auth"},
+        {"name": "getByUuid", "input": "id", "output": "Project", "description": "Get project by UUID"},
+        {"name": "getPublicByUuid", "input": "id, user", "output": "Project", "description": "Get public project by UUID"},
+        {"name": "getHackathon", "input": "id, user", "output": "Project", "description": "Get hackathon project"},
+        {"name": "create", "input": "user, editor, request", "output": "Project", "description": "Create project with editor"},
+        {"name": "publicCreate", "input": "user, request", "output": "Project", "description": "Create public job"},
+        {"name": "update", "input": "project, user, request", "output": "Project", "description": "Update project"},
+        {"name": "cancel", "input": "project, user, request", "output": "Project", "description": "Cancel project"},
+        {"name": "response", "input": "project, user, request", "output": "Project", "description": "Editor accept/reject"},
+        {"name": "status", "input": "project, user, request", "output": "Project", "description": "Update status started/completed"},
+        {"name": "milestone", "input": "project, user, request", "output": "Project", "description": "Update milestone status"},
+        {"name": "deposit", "input": "project, user, request", "output": "object (checkout_url, transaction)", "description": "Create deposit (Stripe)"},
+        {"name": "purchase", "input": "project, user, request", "output": "object", "description": "Purchase (one-time or subscription)"},
+        {"name": "review", "input": "project, user, request", "output": "ProjectFeedbackUser", "description": "Create user review"},
+        {"name": "feedback", "input": "project, user, request", "output": "ProjectFeedbackEditor", "description": "Create editor feedback"},
+        {"name": "calculateMatch", "input": "user, project", "output": "object", "description": "Calculate match score"},
+        {"name": "sendProjectAlert", "input": "user, project, request", "output": "object", "description": "Send project alert"},
+        {"name": "sendProjectAlertEvery2Days", "input": "request", "output": "object", "description": "Send 2-day project alerts"}
+      ],
+      "external_integrations": ["Stripe", "Mail (ProjectApplicationOffer, OpenProjectAnnouncement, JobAlertEvery2Days)", "Slack (NewLead)"]
+    }
+  },
+  "helpers_and_traits": {
+    "helpers": [
+      {"file": "app/Helpers/Validation.php", "purpose": "API request validation helper (Validation::api($request, $rules))"},
+      {"file": "app/Helpers/Helper.php", "purpose": "General helper functions"},
+      {"file": "app/Helpers/Facebook.php", "purpose": "Facebook/OEmbed or API helpers"},
+      {"file": "app/Helpers/Dailymotion.php", "purpose": "Dailymotion embed/metadata helpers"},
+      {"file": "app/Helpers/Vimeo.php", "purpose": "Vimeo embed/metadata helpers"}
+    ],
+    "traits": [],
+    "global_helpers": ["api()", "get_meta()", "get_access_token()", "custom_encode()", "custom_decode()", "generate_password()", "app_id()", "has_permission()", "check_permission()"]
+  },
+  "fastapi_mapping": {
+    "auth": {"recommended_folder_name": "auth", "router_file": "router.py", "controller_file": "auth_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["user.py"], "endpoints_by_prefix": ["/auth/init", "/auth/login", "/auth/social", "/auth/register", "/auth/reset", "/auth/new-password", "/auth/linkedin", "/auth/otp/*", "/auth/verify", "/auth/logout", "/auth/password", "/auth/broadcasting"], "authentication_requirements": "None for init/login/register/otp; Bearer for logout/password/broadcasting/chat", "dependencies_required": ["AuthService", "UserService", "LogService", "OTP rate limit"]},
+    "profile": {"recommended_folder_name": "profile", "router_file": "router.py", "controller_file": "profile_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["user.py", "user_pricing.py", "user_skills.py"], "endpoints_by_prefix": ["/profile", "/profile/statistics", "/profile/social", "/profile/update", "/profile/pricing", "/profile/*"], "authentication_requirements": "Bearer required", "dependencies_required": ["ProfileService", "UserService"]},
+    "chat": {"recommended_folder_name": "chat", "router_file": "router.py", "controller_file": "chat_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["chat.py", "chat_message.py"], "endpoints_by_prefix": ["/chat", "/chat/received_messages", "/chat/init", "/chat/{id}"], "authentication_requirements": "Bearer required", "dependencies_required": ["ChatService", "GetStream or equivalent"]},
+    "matching": {"recommended_folder_name": "matching", "router_file": "router.py", "controller_file": "matching_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["matching.py", "project.py"], "endpoints_by_prefix": ["/matching", "/public-matching"], "authentication_requirements": "Bearer for protected; none for public-matching and get by token", "dependencies_required": ["MatchingService"]},
+    "project": {"recommended_folder_name": "project", "router_file": "router.py", "controller_file": "project_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["project.py", "project_milestone.py", "project_reference.py", "project_application.py"], "endpoints_by_prefix": ["/project", "/project/public", "/project/hackathon"], "authentication_requirements": "Bearer for most; none for no-auth public and metadata", "dependencies_required": ["ProjectService", "ProjectApplicationService", "EditorService", "UserService"]},
+    "project-application": {"recommended_folder_name": "project_application", "router_file": "router.py", "controller_file": "project_application_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["project_application.py"], "endpoints_by_prefix": ["/project-application"], "authentication_requirements": "Bearer required", "dependencies_required": ["ProjectApplicationService"]},
+    "user": {"recommended_folder_name": "user", "router_file": "router.py", "controller_file": "user_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["user.py"], "endpoints_by_prefix": ["/user/{id}", "/user/referral", "/user/notifications"], "authentication_requirements": "Bearer for /user/{id}; none for referral and notifications", "dependencies_required": ["UserService"]},
+    "admin": {"recommended_folder_name": "admin", "router_file": "router.py", "controller_file": "admin_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["user.py", "project.py"], "endpoints_by_prefix": ["/admin/editors", "/admin/creators", "/admin/projects", "/admin/users"], "authentication_requirements": "Bearer required (admin role)", "dependencies_required": ["AdminService", "UserService"]},
+    "public": {"recommended_folder_name": "public", "router_file": "router.py", "controller_file": "callback_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": [], "endpoints_by_prefix": ["/callback/*", "/upload", "/upload/multiple", "users/metrics", "/pdfsend", "/public-job-listing", "/freejobpost"], "authentication_requirements": "None or webhook signatures (Stripe, SendGrid, Webflow)", "dependencies_required": ["Stripe webhook", "FileUploadService", "PdfSend"]},
+    "lookups": {"recommended_folder_name": "lookups", "router_file": "router.py", "controller_file": "lookup_controllers.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["skill.py", "content_vertical.py", "platform.py", "software.py", "equipment.py", "creative_style.py", "content_form.py", "project_type.py", "job_type.py", "reason.py", "referral.py", "location.py"], "endpoints_by_prefix": ["/skills", "/contentverticals", "/platforms", "/softwares", "/equipments", "/creativestyles", "/contentforms", "/projecttypes", "/jobtypes", "/reasons", "/referrals", "/location"], "authentication_requirements": "None or lenient rate limit", "dependencies_required": ["Read-only repos or services"]},
+    "data": {"recommended_folder_name": "data", "router_file": "router.py", "controller_file": "data_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["user.py", "location.py"], "endpoints_by_prefix": ["/data/editor", "/data/country", "/data/state", "/data/city", "/data/location", "/data/editor/invite"], "authentication_requirements": "Bearer required", "dependencies_required": ["DataService", "LocationService"]},
+    "editor": {"recommended_folder_name": "editor", "router_file": "router.py", "controller_file": "editor_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["user.py"], "endpoints_by_prefix": ["/editor", "/editor/{id}", "/editor/store", "/editor/email", "/editor/admin"], "authentication_requirements": "None for public editor views; optional for admin", "dependencies_required": ["EditorService"]},
+    "favourite": {"recommended_folder_name": "favourite", "router_file": "router.py", "controller_file": "favourite_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["user.py", "user_favourites"], "endpoints_by_prefix": ["/favourite"], "authentication_requirements": "Bearer required", "dependencies_required": ["FavouriteService"]},
+    "file": {"recommended_folder_name": "file", "router_file": "router.py", "controller_file": "file_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["file.py"], "endpoints_by_prefix": ["/file"], "authentication_requirements": "Bearer required", "dependencies_required": ["FileService", "GoogleCloudStorageService"]},
+    "questionnaire": {"recommended_folder_name": "questionnaire", "router_file": "router.py", "controller_file": "questionnaire_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["questionnaire.py", "questionnaire_question.py", "questionnaire_option.py", "questionnaire_response.py", "questionnaire_answer.py"], "endpoints_by_prefix": ["/questionnaire"], "authentication_requirements": "None", "dependencies_required": ["QuestionnaireService"]},
+    "project-screening": {"recommended_folder_name": "project_screening", "router_file": "router.py", "controller_file": "project_screening_question_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["project_screening_question.py", "project_screening_answer.py"], "endpoints_by_prefix": ["/project/{projectUuid}/screening-questions"], "authentication_requirements": "Bearer required", "dependencies_required": ["ProjectScreeningQuestionService"]},
+    "user-to-do": {"recommended_folder_name": "user_todo", "router_file": "router.py", "controller_file": "user_todo_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["user_todo.py"], "endpoints_by_prefix": ["/user-to-do"], "authentication_requirements": "Bearer required", "dependencies_required": ["UserToDoService"]},
+    "shortlist": {"recommended_folder_name": "shortlist", "router_file": "router.py", "controller_file": "editor_shortlist_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["editor_shortlist.py"], "endpoints_by_prefix": ["/shortlist"], "authentication_requirements": "Bearer required", "dependencies_required": ["EditorShortlistService"]},
+    "profile-visit": {"recommended_folder_name": "profile_visit", "router_file": "router.py", "controller_file": "profile_visit_controller.py", "schemas_file": "schemas.py", "sqlalchemy_model_files": ["profile_visit.py"], "endpoints_by_prefix": ["/profile-visit"], "authentication_requirements": "Bearer required", "dependencies_required": ["ProfileVisitService"]}
+  }
+}

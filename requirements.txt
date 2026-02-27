@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+pymysql
+psycopg2-binary
+python-dotenv
+pydantic-settings
+PyJWT
+celery
+redis
+stripe
+sendgrid
+requests
+sentry-sdk
+
