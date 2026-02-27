@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Session
 
@@ -44,6 +44,6 @@ class ProjectService:
             "metrics": {},
         }
 
-    def get_by_uuid(self, uuid: str) -> Project | None:
+    def get_by_uuid(self, uuid: str) -> Optional[Project]:
         return self.db.query(Project).filter(Project.uuid == uuid).first()
 

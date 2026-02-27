@@ -34,5 +34,11 @@ class User(Base):
     updated_at = Column(DateTime, nullable=True)
 
     # Relationships (defined with string targets so models can be added later)
-    projects = relationship("Project", back_populates="user", lazy="selectin")
+    # Explicitly specify foreign_keys to disambiguate user_id vs editor_id on Project.
+    projects = relationship(
+        "Project",
+        back_populates="user",
+        lazy="selectin",
+        foreign_keys="Project.user_id",
+    )
 
