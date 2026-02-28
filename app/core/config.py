@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 LARAVEL_ROOT = PROJECT_ROOT.parent / "api.joinroster.co"
 LARAVEL_ENV_PATH = LARAVEL_ROOT / ".env"
 

@@ -4,9 +4,7 @@ from sqlalchemy.orm import Session
 from app.api.auth.auth_controller import AuthController
 from app.api.auth.schemas import (
     AuthInitRequest,
-    AuthInitResponse,
     AuthLoginRequest,
-    AuthLoginResponse,
     AuthNewPasswordRequest,
     AuthOtpRequest,
     AuthPasswordChangeRequest,
@@ -14,7 +12,6 @@ from app.api.auth.schemas import (
     AuthResetRequest,
     AuthVerifyOtpRequest,
     AuthVerifyRequest,
-    StatusMessageResponse,
 )
 from app.core.dependencies import (
     otp_rate_limit,
@@ -31,47 +28,30 @@ def get_controller(db: Session = Depends(get_db)) -> AuthController:
     return AuthController(db=db)
 
 
-@router.post("/init", response_model=AuthInitResponse)
+@router.post("/init")
 def auth_init(
     payload: AuthInitRequest,
     controller: AuthController = Depends(get_controller),
-) -> AuthInitResponse:
-    """
-    POST /auth/init
-
-    Middlewares in Laravel: none.
-    """
+):
+    """POST /auth/init — Laravel-exact: status, action, message."""
     return controller.init(payload)
 
 
-@router.post("/login", response_model=AuthLoginResponse)
+@router.post("/login")
 def auth_login(
     payload: AuthLoginRequest,
     controller: AuthController = Depends(get_controller),
-) -> AuthLoginResponse:
-    """
-    POST /auth/login
-
-    Middlewares in Laravel: none.
-    """
+):
+    """POST /auth/login — Laravel-exact: status, message, user, access_token, token_type."""
     return controller.login(payload)
 
 
-@router.post(
-    "/social",
-    dependencies=[Depends(strict_rate_limit)],
-    response_model=AuthLoginResponse,
-)
+@router.post("/social", dependencies=[Depends(strict_rate_limit)])
 def auth_social(
     controller: AuthController = Depends(get_controller),
-) -> AuthLoginResponse:
-    """
-    POST /auth/social
-
-    Middlewares in Laravel: api.strict
-    """
-    # Detailed social flow delegated to AuthService; stub for now.
-    raise NotImplementedError("Social auth not yet implemented.")
+):
+    """POST /auth/social — Laravel-exact: status, message, user, access_token, token_type."""
+    return controller.social(None)
 
 
 @router.post(
@@ -90,15 +70,11 @@ def auth_register(
     return controller.register(payload)
 
 
-@router.post(
-    "/reset",
-    dependencies=[Depends(strict_rate_limit)],
-    response_model=StatusMessageResponse,
-)
+@router.post("/reset", dependencies=[Depends(strict_rate_limit)])
 def auth_reset(
     payload: AuthResetRequest,
     controller: AuthController = Depends(get_controller),
-) -> StatusMessageResponse:
+):
     """
     POST /auth/reset
 
@@ -123,15 +99,11 @@ def auth_new_password(
     return controller.new_password(payload)
 
 
-@router.post(
-    "/otp/reset",
-    dependencies=[Depends(otp_rate_limit)],
-    response_model=StatusMessageResponse,
-)
+@router.post("/otp/reset", dependencies=[Depends(otp_rate_limit)])
 def auth_otp_reset(
     payload: AuthOtpRequest,
     controller: AuthController = Depends(get_controller),
-) -> StatusMessageResponse:
+):
     """
     POST /auth/otp/reset
 
@@ -140,15 +112,11 @@ def auth_otp_reset(
     return controller.resetotp(payload)
 
 
-@router.post(
-    "/otp/verify",
-    dependencies=[Depends(otp_rate_limit)],
-    response_model=StatusMessageResponse,
-)
+@router.post("/otp/verify", dependencies=[Depends(otp_rate_limit)])
 def auth_otp_verify(
     payload: AuthVerifyOtpRequest,
     controller: AuthController = Depends(get_controller),
-) -> StatusMessageResponse:
+):
     """
     POST /auth/otp/verify
 
@@ -157,15 +125,11 @@ def auth_otp_verify(
     return controller.verifyotp(payload)
 
 
-@router.post(
-    "/otp",
-    dependencies=[Depends(otp_rate_limit), Depends(require_auth)],
-    response_model=StatusMessageResponse,
-)
+@router.post("/otp", dependencies=[Depends(otp_rate_limit), Depends(require_auth)])
 def auth_otp(
     payload: AuthOtpRequest,
     controller: AuthController = Depends(get_controller),
-) -> StatusMessageResponse:
+):
     """
     POST /auth/otp
 
@@ -190,14 +154,10 @@ def auth_verify(
     return controller.verify(payload)
 
 
-@router.post(
-    "/logout",
-    dependencies=[Depends(strict_rate_limit), Depends(require_auth)],
-    response_model=StatusMessageResponse,
-)
+@router.post("/logout", dependencies=[Depends(strict_rate_limit), Depends(require_auth)])
 def auth_logout(
     controller: AuthController = Depends(get_controller),
-) -> StatusMessageResponse:
+):
     """
     POST /auth/logout
 
@@ -206,15 +166,11 @@ def auth_logout(
     return controller.logout()
 
 
-@router.post(
-    "/password",
-    dependencies=[Depends(strict_rate_limit), Depends(require_auth)],
-    response_model=StatusMessageResponse,
-)
+@router.post("/password", dependencies=[Depends(strict_rate_limit), Depends(require_auth)])
 def auth_password(
     payload: AuthPasswordChangeRequest,
     controller: AuthController = Depends(get_controller),
-) -> StatusMessageResponse:
+):
     """
     POST /auth/password
 

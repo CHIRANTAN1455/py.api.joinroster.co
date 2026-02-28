@@ -2,6 +2,7 @@ from typing import Any, Dict, Optional
 
 from sqlalchemy.orm import Session
 
+from app.core.laravel_response import user_to_laravel_user_resource
 from app.core.security import create_access_token
 from app.db.models.user import User
 
@@ -44,7 +45,8 @@ class AuthService:
 
         token = create_access_token(subject=str(user.id))
         return {
-            "user": {"id": user.id, "email": user.email},
+            "message": "Login successful",
+            "user": user_to_laravel_user_resource(user),
             "access_token": token,
             "token_type": "Bearer",
         }

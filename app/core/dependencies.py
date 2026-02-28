@@ -1,8 +1,10 @@
 from time import time
 from typing import Dict
 
+import jwt
 from fastapi import Depends, HTTPException, Request, status
 
+from app.core.config import get_settings
 from app.core.security import get_current_user_token
 
 # Very simple in-memory rate limiting buckets keyed by client identifier.
@@ -80,4 +82,33 @@ async def require_auth(token: str = Depends(get_current_user_token)) -> str:
     JWT bearer token; controller/service layers can then resolve the user.
     """
     return token
+
+
+async def get_current_user_id(token: str = Depends(get_current_user_token)) -> int:
+    """
+    Decode the validated JWT token and return the numeric user ID from `sub`.
+    This is used by controllers that need the authenticated user ID, while
+    still preserving `require_auth` as a pure-guard dependency.
+    """
+    settings = get_settings()
+    try:
+        payload = jwt.decode(
+            token,
+            settings.JWT_SECRET,
+            algorithms=[settings.JWT_ALGORITHM],
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"status": "error", "message": "Invalid token."},
+        )
+
+    sub = payload.get("sub")
+    try:
+        return int(sub)
+    except (TypeError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"status": "error", "message": "Invalid token subject."},
+        )
 
