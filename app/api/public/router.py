@@ -93,14 +93,16 @@ def pdfsend(
     body: Optional[PdfSendBody] = Body(None, description="Laravel PdfSend payload"),
     db: Session = Depends(get_db_session),
 ):
-    """Send PDF/document email to the given email (or user_id). Requires body with email or user_id."""
+    """Send PDF/document email to the given email (or user_id). Attaches PDF when pdf_link is provided."""
     email = None
     name = None
     pdf_type = None
+    pdf_link = None
     if body:
         email = body.email
         name = body.name
         pdf_type = body.type
+        pdf_link = body.pdf_link
         if not email and body.user_id:
             user = db.query(User).filter(User.id == body.user_id).first()
             if user:
@@ -109,7 +111,7 @@ def pdfsend(
                     name = user.name
     if not email or "@" not in email:
         return {"status": "error", "message": "Valid email or user_id is required"}
-    ok, err = send_pdf_email(to_email=email, pdf_type=pdf_type, recipient_name=name)
+    ok, err = send_pdf_email(to_email=email, pdf_type=pdf_type, recipient_name=name, pdf_link=pdf_link)
     if not ok:
         return {"status": "error", "message": err or "Failed to send email"}
     return success_with_message("Success")

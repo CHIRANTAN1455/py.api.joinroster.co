@@ -9,16 +9,18 @@ from pydantic import BaseModel, Field
 
 # ——— /api/pdfsend (PATCH) ———
 class PdfSendBody(BaseModel):
-    """Laravel PdfSend: typical payload for PDF send (email, type, etc.)."""
+    """Laravel PdfSend: typical payload for PDF send (email, type, pdf_link, etc.)."""
     email: Optional[str] = Field(None, description="Recipient email")
     type: Optional[str] = Field(None, description="PDF type / template")
     user_id: Optional[int] = Field(None, description="User ID")
     name: Optional[str] = Field(None, description="Recipient name")
+    pdf_link: Optional[str] = Field(None, description="URL of PDF to attach to the email")
+    fol_count: Optional[str] = Field(None, description="Follower count band (e.g. 0-10k)")
 
     class Config:
         extra = "allow"  # Accept any extra keys from Laravel payload
         json_schema_extra = {
-            "example": {"email": "user@example.com", "type": "invoice"}
+            "example": {"email": "user@example.com", "type": "invoice", "pdf_link": "https://example.com/guide.pdf"}
         }
 
 

@@ -1,3 +1,4 @@
+import sqlalchemy.exc
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.utils import get_openapi
@@ -58,6 +59,17 @@ def _laravel_validation_exception_handler(
     return JSONResponse(status_code=400, content=body)
 
 
+def _database_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Return Laravel-shaped JSON when DB is unreachable (e.g. MySQL not running or wrong DB_HOST)."""
+    return JSONResponse(
+        status_code=503,
+        content={
+            "status": "error",
+            "message": "Database unavailable. Check that MySQL is running and DB_HOST/DB_DATABASE in .env are correct.",
+        },
+    )
+
+
 def create_app() -> FastAPI:
     settings = get_settings()
 
@@ -72,6 +84,8 @@ def create_app() -> FastAPI:
     configure_cors(app)
 
     app.add_exception_handler(RequestValidationError, _laravel_validation_exception_handler)
+    app.add_exception_handler(sqlalchemy.exc.OperationalError, _database_exception_handler)
+    app.add_exception_handler(sqlalchemy.exc.InterfaceError, _database_exception_handler)
 
     # Include domain routers under a common `/api` base path so every
     # endpoint is exposed as `<domain>/api/<endpoint>` on the host.
