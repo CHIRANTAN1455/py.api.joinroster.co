@@ -7,19 +7,20 @@ from pydantic_settings import BaseSettings
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+LOCAL_ENV_PATH = PROJECT_ROOT / ".env"
 LARAVEL_ROOT = PROJECT_ROOT.parent / "api.joinroster.co"
 LARAVEL_ENV_PATH = LARAVEL_ROOT / ".env"
 
 
 def load_laravel_env() -> None:
     """
-    Load ALL keys from the existing Laravel .env into the current process
-    without renaming them. This keeps names like DB_*, CACHE_*, QUEUE_*,
-    REDIS_*, MAIL_*, STRIPE_*, GETSTREAM_*, SENDGRID_*, SENTRY_*, etc.
-    identical to Laravel.
+    Load env: Laravel .env first (base), then local .env in FastAPI project
+    overrides. So you can put a .env in the project root with your values.
     """
     if LARAVEL_ENV_PATH.exists():
         load_dotenv(dotenv_path=LARAVEL_ENV_PATH, override=False)
+    if LOCAL_ENV_PATH.exists():
+        load_dotenv(dotenv_path=LOCAL_ENV_PATH, override=True)
 
 
 load_laravel_env()
