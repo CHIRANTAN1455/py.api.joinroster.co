@@ -23,11 +23,6 @@ def update_matching_editor():
     return success_with_message("Matching updated", matching={})
 
 
-@router.post("/public-matching")
-def public_matching():
-    return success_with_message("Matching created", matching={}, token=None)
-
-
 @router.get("/{id}")
 def get_matching(id: str):
     return success_with_message("Matching Loaded Successfully", matching={})

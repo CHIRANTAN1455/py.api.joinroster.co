@@ -69,3 +69,9 @@ def public_job_listing():
 def free_job_post():
     return success_with_message("Success")
 
+
+@router.post("/public-matching")
+def public_matching():
+    """POST /public-matching — Laravel: no /matching/ prefix; MatchingController@publicCreate."""
+    return success_with_message("Matching created", matching={}, token=None)
+

@@ -178,3 +178,21 @@ def auth_password(
     """
     return controller.password(payload)
 
+
+@router.get("/chat", dependencies=[Depends(strict_rate_limit), Depends(require_auth)])
+def auth_chat(controller: AuthController = Depends(get_controller)):
+    """GET /auth/chat — Laravel: api.strict, auth:sanctum."""
+    return controller.chat()
+
+
+@router.post("/linkedin", dependencies=[Depends(strict_rate_limit)])
+def auth_linkedin(controller: AuthController = Depends(get_controller)):
+    """POST /auth/linkedin — Laravel: api.strict."""
+    return controller.linkedin(None)
+
+
+@router.post("/broadcasting", dependencies=[Depends(strict_rate_limit), Depends(require_auth)])
+def auth_broadcasting(controller: AuthController = Depends(get_controller)):
+    """POST /auth/broadcasting — Laravel: api.strict, auth:sanctum."""
+    return controller.broadcasting()
+

@@ -15,5 +15,6 @@ from app.db.models.job_type import JobType  # noqa: F401
 from app.db.models.project_type import ProjectType  # noqa: F401
 from app.db.models.reason import Reason  # noqa: F401
 from app.db.models.referral import Referral  # noqa: F401
+from app.db.models.referral_record import ReferralRecord  # noqa: F401
 from app.db.models.location import Location  # noqa: F401
 

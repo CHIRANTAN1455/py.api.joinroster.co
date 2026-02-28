@@ -29,10 +29,19 @@ class ProjectController:
         self.db = db
         self.service = ProjectService(db=db)
 
-    def index(self, user_id: int, page: int = 1) -> Dict[str, Any]:
-        result = self.service.search(user_id=user_id, page=page)
+    def index(
+        self,
+        user_id: int,
+        page: int = 1,
+        search: Optional[str] = None,
+        status: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        result = self.service.search(
+            user_id=user_id, page=page, search=search, status=status
+        )
         return {
             "status": "success",
+            "message": "Projects Loaded Successfully",
             "projects": result["projects"],
             "total": result["total"],
             "page": result["page"],
@@ -60,26 +69,44 @@ class ProjectController:
     def get_hackathon(self, project_uuid: str) -> Dict[str, Any]:
         return self.get(project_uuid)
 
-    def list_public_no_auth(self) -> Dict[str, Any]:
-        return {"status": "success", "projects": [], "total": 0, "page": 1}
+    def list_public_no_auth(self, page: int = 1) -> Dict[str, Any]:
+        result = self.service.public_search_no_auth(page=page)
+        return {
+            "status": "success",
+            "projects": result["projects"],
+            "total": result["total"],
+            "page": result["page"],
+        }
 
-    def list_public(self, user_id: int) -> Dict[str, Any]:
-        return self.index(user_id=user_id)
+    def list_public(self, user_id: int, page: int = 1) -> Dict[str, Any]:
+        result = self.service.public_search(user_id=user_id, page=page)
+        return {
+            "status": "success",
+            "projects": result["projects"],
+            "total": result["total"],
+            "page": result["page"],
+        }
 
     def store(self, user_id: int, payload: Any) -> Dict[str, Any]:
-        project = getattr(self.service, "create", lambda **kw: None)(user_id=user_id, payload=payload)
+        project = self.service.create(user_id=user_id, payload=payload)
         if project:
-            return _success_project("Project Created Successfully", _project_to_laravel_resource(project))
+            return _success_project(
+                "Project Created Successfully",
+                _project_to_laravel_resource(project),
+            )
         return _success_project("Project Created Successfully", {})
 
     def store_public(self, user_id: int, payload: Any) -> Dict[str, Any]:
         return self.store(user_id=user_id, payload=payload)
 
     def update(self, project_uuid: str, payload: Any) -> Dict[str, Any]:
-        project = self.service.get_by_uuid(uuid=project_uuid)
+        project = self.service.update(project_uuid, payload)
         if not project:
             return {"status": "error", "project": {}}
-        return _success_project("Project Updated Successfully", _project_to_laravel_resource(project))
+        return _success_project(
+            "Project Updated Successfully",
+            _project_to_laravel_resource(project),
+        )
 
     def update_public(self, project_uuid: str, payload: Any) -> Dict[str, Any]:
         return self.update(project_uuid=project_uuid, payload=payload)
@@ -88,7 +115,13 @@ class ProjectController:
         return self.update(project_uuid=project_uuid, payload=payload)
 
     def cancel(self, project_uuid: str, payload: Any) -> Dict[str, Any]:
-        return self.get(project_uuid)
+        project = self.service.cancel(project_uuid)
+        if not project:
+            return {"status": "error", "project": {}}
+        return _success_project(
+            "Project Cancelled Successfully",
+            _project_to_laravel_resource(project),
+        )
 
     def response(self, project_uuid: str, payload: Any) -> Dict[str, Any]:
         return self.get(project_uuid)

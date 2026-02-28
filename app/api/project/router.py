@@ -3,10 +3,13 @@ Project routes. All {id} path params are project uuid (query by uuid).
 Responses: status, message (where Laravel has it), project/projects/result/review/feedback/match.
 No integer id in responses — uuid only.
 """
+from typing import Optional
+
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.api.project.project_controller import ProjectController
+from app.api.project.schemas import ProjectCreateBody, ProjectUpdateBody
 from app.core.dependencies import require_auth, get_current_user_id
 from app.core.laravel_response import success_with_message
 from app.db.session import get_db
@@ -37,18 +40,25 @@ def get_hackathon_no_auth(id: str, controller: ProjectController = Depends(get_c
 
 
 @router.get("/public/no-auth")
-def get_public_projects_no_auth(controller: ProjectController = Depends(get_controller)):
-    return controller.list_public_no_auth()
+def get_public_projects_no_auth(
+    page: int = Query(1, ge=1),
+    controller: ProjectController = Depends(get_controller),
+):
+    return controller.list_public_no_auth(page=page)
 
 
 # ——— Auth required ———
 @router.get("")
 def list_projects(
     page: int = Query(1, ge=1),
+    search: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
     controller: ProjectController = Depends(get_controller),
     current_user_id: int = Depends(get_current_user_id),
 ):
-    return controller.index(user_id=current_user_id, page=page)
+    return controller.index(
+        user_id=current_user_id, page=page, search=search, status=status
+    )
 
 
 @router.get("/hackathon/{id}", dependencies=[Depends(require_auth)])
@@ -83,36 +93,51 @@ def project_alerts_2_days(
 
 @router.get("/public", dependencies=[Depends(require_auth)])
 def get_public_projects(
+    page: int = Query(1, ge=1),
     controller: ProjectController = Depends(get_controller),
     current_user_id: int = Depends(get_current_user_id),
 ):
-    return controller.list_public(user_id=current_user_id)
+    return controller.list_public(user_id=current_user_id, page=page)
 
 
 @router.post("/add", dependencies=[Depends(require_auth)])
 def project_add(
+    body: Optional[ProjectCreateBody] = None,
     controller: ProjectController = Depends(get_controller),
     current_user_id: int = Depends(get_current_user_id),
 ):
-    return controller.store(user_id=current_user_id, payload=None)
+    payload = body.model_dump() if body else None
+    return controller.store(user_id=current_user_id, payload=payload)
 
 
 @router.post("/public/add", dependencies=[Depends(require_auth)])
 def project_public_add(
+    body: Optional[ProjectCreateBody] = None,
     controller: ProjectController = Depends(get_controller),
     current_user_id: int = Depends(get_current_user_id),
 ):
-    return controller.store_public(user_id=current_user_id, payload=None)
+    payload = body.model_dump() if body else None
+    return controller.store_public(user_id=current_user_id, payload=payload)
 
 
 @router.patch("/{id}", dependencies=[Depends(require_auth)])
-def update_project(id: str, controller: ProjectController = Depends(get_controller)):
-    return controller.update(project_uuid=id, payload=None)
+def update_project(
+    id: str,
+    body: Optional[ProjectUpdateBody] = None,
+    controller: ProjectController = Depends(get_controller),
+):
+    payload = body.model_dump(exclude_unset=True) if body else None
+    return controller.update(project_uuid=id, payload=payload)
 
 
 @router.patch("/public/{id}", dependencies=[Depends(require_auth)])
-def update_public_project(id: str, controller: ProjectController = Depends(get_controller)):
-    return controller.update_public(project_uuid=id, payload=None)
+def update_public_project(
+    id: str,
+    body: Optional[ProjectUpdateBody] = None,
+    controller: ProjectController = Depends(get_controller),
+):
+    payload = body.model_dump(exclude_unset=True) if body else None
+    return controller.update_public(project_uuid=id, payload=payload)
 
 
 @router.get("/{id}", dependencies=[Depends(require_auth)])
@@ -131,7 +156,10 @@ def update_hackathon_public(id: str, controller: ProjectController = Depends(get
 
 
 @router.post("/{id}/cancel", dependencies=[Depends(require_auth)])
-def project_cancel(id: str, controller: ProjectController = Depends(get_controller)):
+def project_cancel(
+    id: str,
+    controller: ProjectController = Depends(get_controller),
+):
     return controller.cancel(project_uuid=id, payload=None)
 
 

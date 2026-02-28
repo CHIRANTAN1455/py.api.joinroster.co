@@ -2,29 +2,32 @@
 Profile endpoints. Laravel-exact: status, message, user (or statistics, etc.).
 All responses use uuid (no integer id) in user resource.
 """
+from typing import Optional
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.api.profile.schemas import ProfileUpdateBody
 from app.core.dependencies import get_current_user_id, require_auth
 from app.core.laravel_response import success_with_message, user_to_laravel_user_resource
-from app.db.models.user import User
 from app.db.session import get_db
+from app.services.profile_service import ProfileService
 
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
 
-def _get_user(db: Session, user_id: int):
-    return db.query(User).filter(User.id == user_id).first()
+def get_profile_service(db: Session = Depends(get_db)) -> ProfileService:
+    return ProfileService(db=db)
 
 
 @router.get("", dependencies=[Depends(require_auth)])
 def get_profile(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     """GET /profile — status, message, user (UserResource)."""
-    user = _get_user(db, current_user_id)
+    user = profile_service.get_user(current_user_id)
     if not user:
         return {"status": "error", "message": "User not found", "user": {}}
     return success_with_message(
@@ -35,19 +38,20 @@ def get_profile(
 
 @router.get("/statistics", dependencies=[Depends(require_auth)])
 def get_profile_statistics(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     """GET /profile/statistics — status, message, statistics."""
+    statistics = profile_service.get_statistics(current_user_id)
     return success_with_message(
         "Statistics Loaded Successfully",
-        statistics={},
+        statistics=statistics,
     )
 
 
 @router.get("/social", dependencies=[Depends(require_auth)])
 def get_profile_social(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     """GET /profile/social — status, message, social (or similar)."""
@@ -59,11 +63,13 @@ def get_profile_social(
 
 @router.post("/update", dependencies=[Depends(require_auth)])
 def update_profile(
-    db: Session = Depends(get_db),
+    body: Optional[ProfileUpdateBody] = None,
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
-    """POST /profile/update — status, message, user."""
-    user = _get_user(db, current_user_id)
+    """POST /profile/update — status, message, user. Persists first_name, last_name, email, phone, username."""
+    payload = body.model_dump(exclude_unset=True) if body else None
+    user = profile_service.update(current_user_id, payload)
     if not user:
         return {"status": "error", "message": "User not found", "user": {}}
     return success_with_message(
@@ -74,7 +80,7 @@ def update_profile(
 
 @router.post("/pricing", dependencies=[Depends(require_auth)])
 def update_profile_pricing(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     return success_with_message("Pricing Updated Successfully", user=None)
@@ -82,7 +88,7 @@ def update_profile_pricing(
 
 @router.post("/pricing/no-delete", dependencies=[Depends(require_auth)])
 def update_profile_pricing_no_delete(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     return success_with_message("Pricing Updated Successfully", user=None)
@@ -90,7 +96,7 @@ def update_profile_pricing_no_delete(
 
 @router.post("/skills", dependencies=[Depends(require_auth)])
 def update_profile_skills(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     return success_with_message("Skills Updated Successfully", user=None)
@@ -98,7 +104,7 @@ def update_profile_skills(
 
 @router.post("/jobtypes", dependencies=[Depends(require_auth)])
 def update_profile_jobtypes(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     return success_with_message("Job Types Updated Successfully", user=None)
@@ -106,7 +112,7 @@ def update_profile_jobtypes(
 
 @router.post("/contentverticals", dependencies=[Depends(require_auth)])
 def update_profile_contentverticals(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     return success_with_message("Content Verticals Updated Successfully", user=None)
@@ -114,7 +120,7 @@ def update_profile_contentverticals(
 
 @router.post("/contentverticals/new", dependencies=[Depends(require_auth)])
 def add_profile_contentverticals(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     return success_with_message("Content Verticals Updated Successfully", user=None)
@@ -122,7 +128,7 @@ def add_profile_contentverticals(
 
 @router.post("/platforms", dependencies=[Depends(require_auth)])
 def update_profile_platforms(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     return success_with_message("Platforms Updated Successfully", user=None)
@@ -130,7 +136,7 @@ def update_profile_platforms(
 
 @router.post("/softwares", dependencies=[Depends(require_auth)])
 def update_profile_softwares(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     return success_with_message("Software Updated Successfully", user=None)
@@ -138,7 +144,7 @@ def update_profile_softwares(
 
 @router.post("/equipments", dependencies=[Depends(require_auth)])
 def update_profile_equipments(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     return success_with_message("Equipment Updated Successfully", user=None)
@@ -146,7 +152,7 @@ def update_profile_equipments(
 
 @router.post("/creativestyles", dependencies=[Depends(require_auth)])
 def update_profile_creativestyles(
-    db: Session = Depends(get_db),
+    profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     return success_with_message("Creative Styles Updated Successfully", user=None)

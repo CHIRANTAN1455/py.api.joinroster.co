@@ -3,6 +3,25 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 
 
+class ProjectCreateBody(BaseModel):
+    title: Optional[str] = ""
+    description: Optional[str] = ""
+    budget: Optional[Any] = None
+    budget_per: Optional[str] = "project"
+    status: Optional[str] = "pending"
+    published: Optional[int] = 0
+    editors: Optional[List[Any]] = None  # list of uuid strings or objects with uuid
+
+
+class ProjectUpdateBody(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    budget: Optional[Any] = None
+    status: Optional[str] = None
+    editor_id: Optional[str] = None
+    editors: Optional[List[Any]] = None
+
+
 class ProjectListResponse(BaseModel):
     status: str
     projects: List[Dict[str, Any]]

@@ -107,3 +107,15 @@ class AuthController:
             "access_token": "",
             "token_type": "Bearer",
         }
+
+    def chat(self) -> Dict[str, Any]:
+        """GET /auth/chat — Laravel returns chat/GetStream credentials."""
+        return {"status": "success", "message": "Chat loaded.", "user": None}
+
+    def linkedin(self, payload: Any) -> Dict[str, Any]:
+        """POST /auth/linkedin — Laravel linkedinAuth stub."""
+        return {"status": "success", "message": "Login successful", "user": {}, "access_token": "", "token_type": "Bearer"}
+
+    def broadcasting(self) -> Dict[str, Any]:
+        """POST /auth/broadcasting — Laravel returns UserBroadcastingResource."""
+        return {"status": "success", "user_id": None, "socket_id": None}
