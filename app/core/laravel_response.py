@@ -14,7 +14,7 @@ def user_to_laravel_user_resource(user: Any) -> Dict[str, Any]:
     Uses None for missing fields so JSON outputs null. Key order matches Laravel.
     """
     return {
-        "id": getattr(user, "uuid", None) or getattr(user, "id"),
+        "uuid": getattr(user, "uuid", None),
         "photo": getattr(user, "photo", None),
         "name": getattr(user, "name", None),
         "first_name": getattr(user, "first_name", None),
@@ -124,13 +124,65 @@ def success_with_message(message: str, **extra: Any) -> Dict[str, Any]:
 
 
 def skill_to_laravel_skill_resource(skill: Any) -> Dict[str, Any]:
-    """
-    Skill resource: use uuid (not id) for the identifier key; icon, name, description.
-    """
+    """Skill resource: uuid, icon, name, description (no integer id)."""
     return {
         "uuid": getattr(skill, "uuid", None),
         "icon": getattr(skill, "icon", None),
         "name": getattr(skill, "name", None),
         "description": getattr(skill, "description", None),
+    }
+
+
+def lookup_to_laravel_resource(record: Any) -> Dict[str, Any]:
+    """Generic lookup (content_vertical, platform, software, equipment, creative_style, content_form, job_type): uuid, icon, name, description."""
+    return {
+        "uuid": getattr(record, "uuid", None),
+        "icon": getattr(record, "icon", None),
+        "name": getattr(record, "name", None),
+        "description": getattr(record, "description", None),
+    }
+
+
+def project_type_to_laravel_resource(record: Any) -> Dict[str, Any]:
+    """ProjectTypeResource: uuid, icon, name, description, count."""
+    return {
+        "uuid": getattr(record, "uuid", None),
+        "icon": getattr(record, "icon", None),
+        "name": getattr(record, "name", None),
+        "description": getattr(record, "description", None),
+        "count": getattr(record, "count", 0),
+    }
+
+
+def reason_to_laravel_resource(record: Any) -> Dict[str, Any]:
+    """ReasonResource: uuid, name, description."""
+    return {
+        "uuid": getattr(record, "uuid", None),
+        "name": getattr(record, "name", None),
+        "description": getattr(record, "description", None),
+    }
+
+
+def referral_to_laravel_resource(record: Any) -> Dict[str, Any]:
+    """ReferralResource: uuid, name, priority, require_input, description."""
+    return {
+        "uuid": getattr(record, "uuid", None),
+        "name": getattr(record, "name", None),
+        "priority": getattr(record, "priority", None),
+        "require_input": getattr(record, "require_input", None),
+        "description": getattr(record, "description", None),
+    }
+
+
+def location_to_laravel_resource(record: Any) -> Dict[str, Any]:
+    """LocationResource: uuid, location (city_ascii, country), city, city_ascii, country."""
+    city_ascii = getattr(record, "city_ascii", None) or ""
+    country = getattr(record, "country", None) or ""
+    return {
+        "uuid": getattr(record, "uuid", None),
+        "location": f"{city_ascii}, {country}".strip(", "),
+        "city": getattr(record, "city", None),
+        "city_ascii": city_ascii,
+        "country": country,
     }
 

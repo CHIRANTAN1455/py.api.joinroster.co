@@ -1,27 +1,28 @@
+"""Social endpoints. Path {id} = uuid. Laravel-exact: status, message, social/socials. Mounted with prefix /api."""
 from fastapi import APIRouter, Depends
 
 from app.core.dependencies import require_auth
+from app.core.laravel_response import success_with_message
 
 
-router = APIRouter(tags=["social"])
+router = APIRouter(prefix="", tags=["social"])
 
 
-@router.get("", dependencies=[Depends(require_auth)])
+@router.get("/social", dependencies=[Depends(require_auth)])
 def list_social():
-    return {"status": "success"}
+    return success_with_message("Social Loaded Successfully", social=[])
 
 
 @router.get("/profile/social/content-topics", dependencies=[Depends(require_auth)])
 def profile_social_content_topics():
-    return {"status": "success"}
+    return success_with_message("Content Topics Loaded Successfully", topics=[])
 
 
-@router.post("", dependencies=[Depends(require_auth)])
+@router.post("/social", dependencies=[Depends(require_auth)])
 def create_social():
-    return {"status": "success"}
+    return success_with_message("Social Created Successfully", social={})
 
 
-@router.delete("/{id}", dependencies=[Depends(require_auth)])
-def delete_social(id: int):
-    return {"status": "success", "id": id}
-
+@router.delete("/social/{id}", dependencies=[Depends(require_auth)])
+def delete_social(id: str):
+    return success_with_message("Social Deleted Successfully")

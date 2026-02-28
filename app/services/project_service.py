@@ -28,7 +28,6 @@ class ProjectService:
 
         projects_data = [
             {
-                "id": p.id,
                 "uuid": p.uuid,
                 "title": p.title,
                 "description": p.description,

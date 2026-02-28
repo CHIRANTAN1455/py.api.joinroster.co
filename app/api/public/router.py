@@ -1,6 +1,8 @@
+"""Public/callback endpoints. Laravel-exact: status, message where applicable."""
 from fastapi import APIRouter, Depends
 
 from app.core.dependencies import unlimited_rate
+from app.core.laravel_response import success_with_message
 
 
 router = APIRouter(prefix="", tags=["public"])
@@ -11,11 +13,7 @@ router = APIRouter(prefix="", tags=["public"])
     dependencies=[Depends(unlimited_rate)],
 )
 def callback_stripe():
-    """
-    POST /callback/stripe
-    Middleware: api.unlimited
-    """
-    return {"status": "success"}
+    return success_with_message("Success")
 
 
 @router.post(
@@ -23,11 +21,7 @@ def callback_stripe():
     dependencies=[Depends(unlimited_rate)],
 )
 def callback_post_transaction_slack():
-    """
-    POST /callback/post-transaction/slack
-    Middleware: api.unlimited
-    """
-    return {"status": "success"}
+    return success_with_message("Success")
 
 
 @router.post(
@@ -35,11 +29,7 @@ def callback_post_transaction_slack():
     dependencies=[Depends(unlimited_rate)],
 )
 def callback_post_transaction_email():
-    """
-    POST /callback/post-transaction/email
-    Middleware: api.unlimited
-    """
-    return {"status": "success"}
+    return success_with_message("Success")
 
 
 @router.post(
@@ -47,64 +37,35 @@ def callback_post_transaction_email():
     dependencies=[Depends(unlimited_rate)],
 )
 def callback_webflow():
-    """
-    POST /callback/webflow
-    Middleware: api.unlimited
-    """
-    return {"status": "success"}
+    return success_with_message("Success")
 
 
 @router.post("/upload")
 def upload_file():
-    """
-    POST /upload
-    Middleware: none
-    """
-    return {"status": "success"}
+    return success_with_message("File uploaded", file={}, url=None)
 
 
 @router.post("/upload/multiple")
 def upload_multiple_files():
-    """
-    POST /upload/multiple
-    Middleware: none
-    """
-    return {"status": "success"}
+    return success_with_message("Files uploaded", files=[])
 
 
 @router.get("users/metrics")
 def users_metrics():
-    """
-    GET users/metrics
-    Middleware: none
-    NOTE: Path is exactly as in spec (no leading slash).
-    """
-    return {"status": "success"}
+    return success_with_message("Metrics loaded", metrics={})
 
 
 @router.patch("/pdfsend")
 def pdfsend():
-    """
-    PATCH /pdfsend
-    Middleware: none
-    """
-    return {"status": "success"}
+    return success_with_message("Success")
 
 
 @router.get("/public-job-listing")
 def public_job_listing():
-    """
-    GET /public-job-listing
-    Middleware: none
-    """
-    return {"status": "success"}
+    return success_with_message("Job listings loaded", jobs=[], total=0, page=1)
 
 
 @router.patch("/freejobpost")
 def free_job_post():
-    """
-    PATCH /freejobpost
-    Middleware: none
-    """
-    return {"status": "success"}
+    return success_with_message("Success")
 

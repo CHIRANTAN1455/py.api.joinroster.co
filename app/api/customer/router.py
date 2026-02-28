@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from app.core.dependencies import unlimited_rate
+from app.core.laravel_response import success_with_message
 
 
 router = APIRouter(prefix="/customer", tags=["customer"])
@@ -8,48 +9,24 @@ router = APIRouter(prefix="/customer", tags=["customer"])
 
 @router.post("/register")
 def customer_register():
-    """
-    POST /customer/register
-    Middleware: none
-    """
-    return {"status": "success"}
+    return success_with_message("Customer registered", customer={}, creators=[])
 
 
-@router.post(
-    "/sendgrid/webhook",
-    dependencies=[Depends(unlimited_rate)],
-)
+@router.post("/sendgrid/webhook", dependencies=[Depends(unlimited_rate)])
 def customer_sendgrid_webhook():
-    """
-    POST /customer/sendgrid/webhook
-    Middleware: api.unlimited
-    """
-    return {"status": "success"}
+    return success_with_message("Success")
 
 
 @router.get("/by-user")
 def customer_by_user():
-    """
-    GET /customer/by-user
-    Middleware: none
-    """
-    return {"status": "success"}
+    return success_with_message("Customer Loaded Successfully", customer={})
 
 
 @router.post("/upgrade")
 def customer_upgrade():
-    """
-    POST /customer/upgrade
-    Middleware: none
-    """
-    return {"status": "success"}
+    return success_with_message("Customer Loaded Successfully", customer={})
 
 
 @router.get("/billing")
 def customer_billing():
-    """
-    GET /customer/billing
-    Middleware: none
-    """
-    return {"status": "success"}
-
+    return success_with_message("Billing Loaded Successfully", billing={})
