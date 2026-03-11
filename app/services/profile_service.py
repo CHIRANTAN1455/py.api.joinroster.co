@@ -30,16 +30,23 @@ class ProfileService:
         user_id: int,
         payload: Any,
     ) -> Optional[User]:
-        """Update user profile from payload (first_name, last_name, email, phone, etc.)."""
+        """Update user profile from payload (first_name, last_name, email, phone, photo, etc.)."""
         user = self.get_user(user_id)
         if not user or payload is None:
             return user
-        allowed = ("first_name", "last_name", "name", "email", "phone", "username")
+        allowed = (
+            "first_name", "last_name", "name", "email", "phone", "username",
+            "address", "city", "country", "company", "job_title", "fun_fact",
+            "reference", "timezone", "utc_offset", "photo", "account_type",
+            "open_for_work", "latitude", "longitude",
+        )
         for key in allowed:
             if not hasattr(user, key):
                 continue
             val = self._get(payload, key)
             if val is not None:
+                if key == "utc_offset" and not isinstance(val, str):
+                    val = str(val)
                 setattr(user, key, val)
         if not user.name and (user.first_name or user.last_name):
             user.name = f"{user.first_name or ''} {user.last_name or ''}".strip()

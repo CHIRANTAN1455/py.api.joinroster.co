@@ -1,8 +1,10 @@
 import logging
+import os
 
 import sqlalchemy.exc
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.staticfiles import StaticFiles
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import JSONResponse
 
@@ -85,6 +87,10 @@ def create_app() -> FastAPI:
     )
 
     configure_cors(app)
+
+    upload_dir = os.environ.get("UPLOAD_DIR", "uploads")
+    if os.path.isdir(upload_dir):
+        app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
 
     app.add_exception_handler(RequestValidationError, _laravel_validation_exception_handler)
     app.add_exception_handler(sqlalchemy.exc.OperationalError, _database_exception_handler)

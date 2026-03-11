@@ -4,13 +4,13 @@ All responses use uuid (no integer id) in user resource.
 """
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, Request, UploadFile
 from sqlalchemy.orm import Session
 
-from app.api.profile.schemas import ProfileUpdateBody
 from app.core.dependencies import get_current_user_id, require_auth
 from app.core.laravel_response import success_with_message, user_to_laravel_user_resource
 from app.db.session import get_db
+from app.services.file_service import FileService
 from app.services.profile_service import ProfileService
 
 
@@ -19,6 +19,10 @@ router = APIRouter(prefix="/profile", tags=["profile"])
 
 def get_profile_service(db: Session = Depends(get_db)) -> ProfileService:
     return ProfileService(db=db)
+
+
+def get_file_service(db: Session = Depends(get_db)) -> FileService:
+    return FileService(db=db)
 
 
 @router.get("", dependencies=[Depends(require_auth)])
@@ -62,14 +66,44 @@ def get_profile_social(
 
 
 @router.post("/update", dependencies=[Depends(require_auth)])
-def update_profile(
-    body: Optional[ProfileUpdateBody] = None,
+async def update_profile(
+    request: Request,
     profile_service: ProfileService = Depends(get_profile_service),
+    file_service: FileService = Depends(get_file_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
-    """POST /profile/update — status, message, user. Persists first_name, last_name, email, phone, username."""
-    payload = body.model_dump(exclude_unset=True) if body else None
-    user = profile_service.update(current_user_id, payload)
+    """
+    POST /profile/update — status, message, user.
+    Accepts JSON or multipart/form-data (for photo upload).
+    """
+    payload = {}
+    content_type = request.headers.get("content-type", "")
+
+    if "multipart/form-data" in content_type:
+        form = await request.form()
+        for key in form.keys():
+            if key == "photo":
+                continue  # handled below
+            val = form.get(key)
+            if val is not None and not (hasattr(val, "filename") and getattr(val, "filename", None)):
+                payload[key] = val if isinstance(val, str) else (str(val) if val else None)
+        photo = form.get("photo")
+        if photo and hasattr(photo, "read") and getattr(photo, "filename", None):
+            content = await photo.read()
+            result = file_service.create(
+                current_user_id, photo.filename or "photo", content=content
+            )
+            if result and result.get("url"):
+                payload["photo"] = result["url"]
+    else:
+        try:
+            body = await request.json()
+            if isinstance(body, dict):
+                payload = {k: v for k, v in body.items() if v is not None}
+        except Exception:
+            pass
+
+    user = profile_service.update(current_user_id, payload if payload else None)
     if not user:
         return {"status": "error", "message": "User not found", "user": {}}
     return success_with_message(
