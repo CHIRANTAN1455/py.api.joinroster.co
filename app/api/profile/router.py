@@ -2,6 +2,8 @@
 Profile endpoints. Laravel-exact: status, message, user (or statistics, etc.).
 All responses use uuid (no integer id) in user resource.
 """
+import os
+import uuid as uuid_lib
 from typing import Any, Dict, Optional, Tuple
 
 from fastapi import APIRouter, Depends, Request
@@ -10,7 +12,6 @@ from sqlalchemy.orm import Session
 from app.core.dependencies import get_current_user_id, require_auth
 from app.core.laravel_response import success_with_message, user_to_laravel_user_resource
 from app.db.session import get_db
-from app.services.file_service import FileService
 from app.services.profile_service import ProfileService
 
 
@@ -21,14 +22,10 @@ def get_profile_service(db: Session = Depends(get_db)) -> ProfileService:
     return ProfileService(db=db)
 
 
-def get_file_service(db: Session = Depends(get_db)) -> FileService:
-    return FileService(db=db)
-
-
 async def _parse_profile_update_body(request: Request) -> Tuple[Dict[str, Any], Any]:
     """
-    Parse request body as JSON or multipart. Never raises.
-    Returns (payload_dict, photo_file_or_none). Photo is the raw UploadFile for multipart.
+    Parse request body as JSON, multipart/form-data, or application/x-www-form-urlencoded.
+    Never raises. Returns (payload_dict, photo_file_or_none). Photo is raw UploadFile for multipart.
     """
     payload: Dict[str, Any] = {}
     photo_file = None
@@ -40,13 +37,18 @@ async def _parse_profile_update_body(request: Request) -> Tuple[Dict[str, Any], 
             for key in form.keys():
                 val = form.get(key)
                 if key == "photo":
-                    if val and hasattr(val, "read") and getattr(val, "filename", None):
+                    if val and hasattr(val, "read"):
                         photo_file = val
                     continue
-                if val is not None and not (hasattr(val, "filename") and getattr(val, "filename", None)):
+                if val is not None and not (hasattr(val, "read") and callable(getattr(val, "read", None))):
                     s = val if isinstance(val, str) else (str(val) if val else None)
                     if s and s not in ("undefined", "null"):
                         payload[key] = s
+        elif "application/x-www-form-urlencoded" in content_type:
+            form = await request.form()
+            for key, val in form.items():
+                if val is not None and isinstance(val, str) and val not in ("undefined", "null"):
+                    payload[key] = val
         else:
             body = await request.json()
             if isinstance(body, dict):
@@ -96,28 +98,40 @@ def get_profile_social(
     )
 
 
+def _save_profile_photo(content: bytes, filename: str) -> Optional[str]:
+    """Save photo to uploads dir and return URL. Laravel stores URL on user.photo, not files table."""
+    try:
+        upload_dir = os.environ.get("UPLOAD_DIR", "uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        ext = os.path.splitext(filename)[1] or ".bin"
+        safe_name = f"{uuid_lib.uuid4().hex}{ext}"
+        file_path = os.path.join(upload_dir, safe_name)
+        with open(file_path, "wb") as fp:
+            fp.write(content)
+        return f"/uploads/{safe_name}"
+    except Exception:
+        return None
+
+
 @router.post("/update", dependencies=[Depends(require_auth)])
 async def update_profile(
     request: Request,
     profile_service: ProfileService = Depends(get_profile_service),
-    file_service: FileService = Depends(get_file_service),
     current_user_id: int = Depends(get_current_user_id),
 ):
     """
     POST /profile/update — status, message, user.
-    Accepts JSON or multipart/form-data (for photo upload).
-    Uses raw Request only - no Pydantic body to avoid validation errors.
+    Accepts JSON, multipart/form-data, or application/x-www-form-urlencoded.
+    Photo upload: saves to uploads/ and stores URL on user.photo (Laravel parity).
     """
     payload, photo_file = await _parse_profile_update_body(request)
 
     if photo_file:
         try:
             content = await photo_file.read()
-            result = file_service.create(
-                current_user_id, photo_file.filename or "photo", content=content
-            )
-            if result and result.get("url"):
-                payload["photo"] = result["url"]
+            url = _save_profile_photo(content, photo_file.filename or "photo")
+            if url:
+                payload["photo"] = url
         except Exception:
             pass
 
