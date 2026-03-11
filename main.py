@@ -45,6 +45,11 @@ def _laravel_validation_exception_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
     """Return Laravel-exact validation error: status, message, fields (400)."""
+    logging.warning(
+        "RequestValidationError path=%s errors=%s",
+        request.url.path,
+        exc.errors(),
+    )
     errors: dict = {}
     all_msgs: list = []
     for e in exc.errors():

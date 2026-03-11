@@ -1,6 +1,7 @@
 fastapi
 uvicorn[standard]
 httpx
+python-multipart
 sqlalchemy
 pymysql
 psycopg2-binary
