@@ -1,5 +1,5 @@
-from typing import Optional
-from pydantic import BaseModel
+from typing import Optional, Union
+from pydantic import BaseModel, field_validator
 
 
 class UserUpdateBody(BaseModel):
@@ -13,7 +13,14 @@ class UserUpdateBody(BaseModel):
 
 class UserTimezoneBody(BaseModel):
     timezone: Optional[str] = None
-    utc_offset: Optional[str] = None
+    utc_offset: Optional[Union[str, int, float]] = None
+
+    @field_validator("utc_offset", mode="before")
+    @classmethod
+    def utc_offset_to_str(cls, v):
+        if v is None:
+            return None
+        return str(v)
 
 
 class UserJobTypesBody(BaseModel):
