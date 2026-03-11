@@ -15,7 +15,7 @@ def user_to_laravel_user_resource(user: Any) -> Dict[str, Any]:
     """
     return {
         "uuid": getattr(user, "uuid", None),
-        "photo": getattr(user, "photo", None),
+        "photo": getattr(user, "photo", None) or "",
         "name": getattr(user, "name", None),
         "first_name": getattr(user, "first_name", None),
         "last_name": getattr(user, "last_name", None),
