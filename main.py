@@ -1,3 +1,5 @@
+import logging
+
 import sqlalchemy.exc
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -61,6 +63,7 @@ def _laravel_validation_exception_handler(
 
 def _database_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Return Laravel-shaped JSON when DB is unreachable (e.g. MySQL not running or wrong DB_HOST)."""
+    logging.exception("Database error: %s", exc)
     return JSONResponse(
         status_code=503,
         content={

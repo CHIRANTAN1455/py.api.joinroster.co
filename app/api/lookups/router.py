@@ -283,7 +283,7 @@ def referrals(db: Session = Depends(get_db)) -> dict:
     """GET /referrals — status, message, referrals."""
     rows = (
         db.query(Referral)
-        .filter(Referral.active == 1)
+        .filter(Referral.active == 1, Referral.deleted_at.is_(None))
         .order_by(Referral.name.asc())
         .all()
     )
