@@ -2,9 +2,9 @@
 Profile endpoints. Laravel-exact: status, message, user (or statistics, etc.).
 All responses use uuid (no integer id) in user resource.
 """
-from typing import Optional
+from typing import Any, Dict, Optional, Tuple
 
-from fastapi import APIRouter, Depends, File, Request, UploadFile
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user_id, require_auth
@@ -23,6 +23,37 @@ def get_profile_service(db: Session = Depends(get_db)) -> ProfileService:
 
 def get_file_service(db: Session = Depends(get_db)) -> FileService:
     return FileService(db=db)
+
+
+async def _parse_profile_update_body(request: Request) -> Tuple[Dict[str, Any], Any]:
+    """
+    Parse request body as JSON or multipart. Never raises.
+    Returns (payload_dict, photo_file_or_none). Photo is the raw UploadFile for multipart.
+    """
+    payload: Dict[str, Any] = {}
+    photo_file = None
+    content_type = (request.headers.get("content-type") or "").lower()
+
+    try:
+        if "multipart/form-data" in content_type:
+            form = await request.form()
+            for key in form.keys():
+                val = form.get(key)
+                if key == "photo":
+                    if val and hasattr(val, "read") and getattr(val, "filename", None):
+                        photo_file = val
+                    continue
+                if val is not None and not (hasattr(val, "filename") and getattr(val, "filename", None)):
+                    s = val if isinstance(val, str) else (str(val) if val else None)
+                    if s and s not in ("undefined", "null"):
+                        payload[key] = s
+        else:
+            body = await request.json()
+            if isinstance(body, dict):
+                payload = {k: v for k, v in body.items() if v is not None and v not in ("undefined", "null")}
+    except Exception:
+        pass
+    return payload, photo_file
 
 
 @router.get("", dependencies=[Depends(require_auth)])
@@ -75,31 +106,18 @@ async def update_profile(
     """
     POST /profile/update — status, message, user.
     Accepts JSON or multipart/form-data (for photo upload).
+    Uses raw Request only - no Pydantic body to avoid validation errors.
     """
-    payload = {}
-    content_type = request.headers.get("content-type", "")
+    payload, photo_file = await _parse_profile_update_body(request)
 
-    if "multipart/form-data" in content_type:
-        form = await request.form()
-        for key in form.keys():
-            if key == "photo":
-                continue  # handled below
-            val = form.get(key)
-            if val is not None and not (hasattr(val, "filename") and getattr(val, "filename", None)):
-                payload[key] = val if isinstance(val, str) else (str(val) if val else None)
-        photo = form.get("photo")
-        if photo and hasattr(photo, "read") and getattr(photo, "filename", None):
-            content = await photo.read()
+    if photo_file:
+        try:
+            content = await photo_file.read()
             result = file_service.create(
-                current_user_id, photo.filename or "photo", content=content
+                current_user_id, photo_file.filename or "photo", content=content
             )
             if result and result.get("url"):
                 payload["photo"] = result["url"]
-    else:
-        try:
-            body = await request.json()
-            if isinstance(body, dict):
-                payload = {k: v for k, v in body.items() if v is not None}
         except Exception:
             pass
 
