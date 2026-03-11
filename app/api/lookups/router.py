@@ -306,7 +306,7 @@ def location(
     page: int = Query(1, ge=1),
 ) -> dict:
     """GET /location — status, message, locations, total, page."""
-    q = db.query(Location)
+    q = db.query(Location).filter(Location.deleted_at.is_(None))
     if search:
         q = q.filter(
             (Location.city_ascii.ilike(f"%{search}%"))
