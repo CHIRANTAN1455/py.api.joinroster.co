@@ -24,6 +24,7 @@ class ProjectService:
         per_page: int = 15,
         search: Optional[str] = None,
         status: Optional[str] = None,
+        statuses: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         query = (
             self.db.query(Project)
@@ -37,7 +38,9 @@ class ProjectService:
             query = query.filter(
                 (Project.title.ilike(q)) | (Project.description.ilike(q))
             )
-        if status:
+        if statuses:
+            query = query.filter(Project.status.in_(statuses))
+        elif status:
             query = query.filter(Project.status == status)
         total = query.count()
         items: List[Project] = (

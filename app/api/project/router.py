@@ -48,16 +48,26 @@ def get_public_projects_no_auth(
 
 
 # ——— Auth required ———
-@router.get("")
+@router.get("", include_in_schema=True)
+@router.get("/", include_in_schema=False)  # Accept trailing slash to avoid 307 redirect
 def list_projects(
     page: int = Query(1, ge=1),
     search: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
+    statuses: Optional[str] = Query(None, description="Comma-separated statuses (e.g. open,closed); overrides status"),
+    per_page: int = Query(15, ge=1, le=100),
     controller: ProjectController = Depends(get_controller),
     current_user_id: int = Depends(get_current_user_id),
 ):
+    # Support both status (single) and statuses (comma-separated); statuses takes precedence
+    status_list = [s.strip() for s in statuses.split(",") if s.strip()] if statuses else None
     return controller.index(
-        user_id=current_user_id, page=page, search=search, status=status
+        user_id=current_user_id,
+        page=page,
+        search=search,
+        status=status if not statuses else None,
+        statuses=status_list,
+        per_page=per_page,
     )
 
 

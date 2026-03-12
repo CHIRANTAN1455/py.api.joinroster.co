@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy.orm import Session
 
@@ -35,9 +35,11 @@ class ProjectController:
         page: int = 1,
         search: Optional[str] = None,
         status: Optional[str] = None,
+        statuses: Optional[list] = None,
+        per_page: int = 15,
     ) -> Dict[str, Any]:
         result = self.service.search(
-            user_id=user_id, page=page, search=search, status=status
+            user_id=user_id, page=page, search=search, status=status, statuses=statuses, per_page=per_page
         )
         return {
             "status": "success",
