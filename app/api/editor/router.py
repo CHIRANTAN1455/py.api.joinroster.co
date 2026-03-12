@@ -15,7 +15,23 @@ def get_editor_service(db: Session = Depends(get_db)) -> EditorService:
     return EditorService(db=db)
 
 
-@router.api_route("", methods=["GET", "POST", "PUT", "PATCH", "DELETE"])
+@router.get("")
+@router.get("/")
+def editor_list(
+    page: int = Query(1, ge=1),
+    service: EditorService = Depends(get_editor_service),
+):
+    """GET /editor?page=1 — list editors with pagination. Laravel parity."""
+    result = service.list_editors(page=page)
+    return success_with_message(
+        "Editors Loaded Successfully",
+        editors=result["editors"],
+        total=result["total"],
+        page=result["page"],
+    )
+
+
+@router.api_route("", methods=["POST", "PUT", "PATCH", "DELETE"], include_in_schema=False)
 def editor_any(service: EditorService = Depends(get_editor_service)):
     return success_with_message("Editor Loaded Successfully", editor={})
 

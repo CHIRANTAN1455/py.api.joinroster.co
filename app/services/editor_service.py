@@ -16,6 +16,17 @@ class EditorService:
     def __init__(self, db: Session):
         self.db = db
 
+    def list_editors(self, page: int = 1, per_page: int = 15) -> Dict[str, Any]:
+        """List editors (creators) with pagination. Laravel parity."""
+        try:
+            q = self.db.query(User).filter(User.active.is_(True))
+            total = q.count()
+            items = q.order_by(User.created_at.desc()).offset((page - 1) * per_page).limit(per_page).all()
+            editors = [user_to_laravel_user_resource(u) for u in items]
+            return {"editors": editors, "total": total, "page": page}
+        except Exception:
+            return {"editors": [], "total": 0, "page": page}
+
     def get_editor(self, uuid: str) -> Optional[Dict[str, Any]]:
         user = self.db.query(User).filter(User.uuid == uuid).first()
         if not user:
