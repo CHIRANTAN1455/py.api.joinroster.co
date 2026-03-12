@@ -22,14 +22,43 @@ def get_profile_service(db: Session = Depends(get_db)) -> ProfileService:
     return ProfileService(db=db)
 
 
+def _flatten_payload(obj: Any) -> Dict[str, Any]:
+    """
+    Extract profile fields from payload. Laravel may send wrapped in "data" or "user".
+    Returns flat dict; preserves bool/int/float, stringifies the rest.
+    """
+    if not obj or not isinstance(obj, dict):
+        return {}
+    # Unwrap Laravel-style nested payload: { "data": {...} } or { "user": {...} }
+    inner = obj.get("data") or obj.get("user")
+    if isinstance(inner, dict):
+        obj = inner
+    out: Dict[str, Any] = {}
+    for k, v in obj.items():
+        if v is None or v in ("undefined", "null"):
+            continue
+        if isinstance(v, (dict, list)):
+            continue  # Skip nested; profile fields are scalars
+        if v == "":
+            continue
+        if isinstance(v, bool):
+            out[k] = v
+        elif isinstance(v, (int, float)):
+            out[k] = v
+        else:
+            out[k] = str(v)
+    return out
+
+
 async def _parse_profile_update_body(request: Request) -> Tuple[Dict[str, Any], Any]:
     """
     Parse request body as JSON, multipart/form-data, or application/x-www-form-urlencoded.
-    Never raises. Returns (payload_dict, photo_file_or_none). Photo is raw UploadFile for multipart.
+    Laravel parity: accepts $request->all() style (form or JSON). Never raises.
+    Returns (payload_dict, photo_file_or_none). Photo is raw UploadFile for multipart.
     """
     payload: Dict[str, Any] = {}
     photo_file = None
-    content_type = (request.headers.get("content-type") or "").lower()
+    content_type = (request.headers.get("content-type") or "").lower().split(";")[0].strip()
 
     try:
         if "multipart/form-data" in content_type:
@@ -50,9 +79,14 @@ async def _parse_profile_update_body(request: Request) -> Tuple[Dict[str, Any], 
                 if val is not None and isinstance(val, str) and val not in ("undefined", "null"):
                     payload[key] = val
         else:
-            body = await request.json()
-            if isinstance(body, dict):
-                payload = {k: v for k, v in body.items() if v is not None and v not in ("undefined", "null")}
+            # JSON or unknown Content-Type: try JSON (handles empty/invalid gracefully)
+            try:
+                body = await request.json()
+                if isinstance(body, dict):
+                    payload = _flatten_payload(body)
+            except Exception:
+                # Empty body, invalid JSON, or wrong Content-Type - treat as no body
+                pass
     except Exception:
         pass
     return payload, photo_file
@@ -114,6 +148,7 @@ def _save_profile_photo(content: bytes, filename: str) -> Optional[str]:
 
 
 @router.post("/update", dependencies=[Depends(require_auth)])
+@router.post("/update/", dependencies=[Depends(require_auth)], include_in_schema=False)  # Trailing slash (Laravel parity)
 async def update_profile(
     request: Request,
     profile_service: ProfileService = Depends(get_profile_service),
