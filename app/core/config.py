@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "py.api.joinroster.co"
     APP_ENV: str = os.getenv("APP_ENV", "local")
     APP_DEBUG: bool = os.getenv("APP_DEBUG", "false").lower() == "true"
+    APP_URL: str = os.getenv("APP_URL", "https://py-api.joinroster.co").rstrip("/")
 
     # Database (use Laravel-style variables directly)
     DB_CONNECTION: str = os.getenv("DB_CONNECTION", "mysql")

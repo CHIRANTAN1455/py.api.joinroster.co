@@ -8,6 +8,18 @@ All keys, casing, and structure must match Laravel 1:1.
 from typing import Any, Dict, Optional
 
 
+def to_absolute_url(path: Any) -> str:
+    """Return absolute URL for relative paths so frontend (different domain) can load images."""
+    if not path or not isinstance(path, str) or not path.strip():
+        return ""
+    s = str(path).strip()
+    if s.startswith("http://") or s.startswith("https://"):
+        return s
+    from app.core.config import get_settings
+    base = get_settings().APP_URL
+    return f"{base}{s}" if s.startswith("/") else f"{base}/{s}"
+
+
 def user_to_laravel_user_resource(user: Any) -> Dict[str, Any]:
     """
     Build a dict matching Laravel's UserResource::toArray() keys exactly.
@@ -15,7 +27,7 @@ def user_to_laravel_user_resource(user: Any) -> Dict[str, Any]:
     """
     return {
         "uuid": getattr(user, "uuid", None),
-        "photo": getattr(user, "photo", None) or "",
+        "photo": to_absolute_url(getattr(user, "photo", None) or ""),
         "name": getattr(user, "name", None),
         "first_name": getattr(user, "first_name", None),
         "last_name": getattr(user, "last_name", None),
@@ -63,7 +75,7 @@ def user_to_laravel_user_resource(user: Any) -> Dict[str, Any]:
         "has_creators_with_projects": None,
         "has_creative_styles": False,
         "has_creator_with_details": False,
-        "resume": getattr(user, "resume", None),
+        "resume": to_absolute_url(getattr(user, "resume", None) or "") or None,
         "resume_updated_at": getattr(user, "resume_updated_at", None),
         "worked_with_creators": getattr(user, "worked_with_creators", None),
         "new_onboarding": getattr(user, "new_onboarding", None),

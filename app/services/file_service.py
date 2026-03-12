@@ -6,11 +6,12 @@ from typing import Any, Dict, Optional
 
 from sqlalchemy.orm import Session
 
+from app.core.laravel_response import to_absolute_url
 from app.db.models.file import File
 
 
 def _file_resource(f: File) -> Dict[str, Any]:
-    return {"uuid": f.uuid, "filename": f.filename, "url": f.url, "created_at": f.created_at}
+    return {"uuid": f.uuid, "filename": f.filename, "url": to_absolute_url(f.url or ""), "created_at": f.created_at}
 
 
 class FileService:
