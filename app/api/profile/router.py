@@ -2,6 +2,7 @@
 Profile endpoints. Laravel-exact: status, message, user (or statistics, etc.).
 All responses use uuid (no integer id) in user resource.
 """
+import json
 import os
 import uuid as uuid_lib
 from typing import Any, Dict, Optional, Tuple
@@ -10,6 +11,7 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user_id, require_auth
+from app.core.image_compression import compress_image
 from app.core.laravel_response import success_with_message, user_to_laravel_user_resource
 from app.db.session import get_db
 from app.services.profile_service import ProfileService
@@ -24,17 +26,27 @@ def get_profile_service(db: Session = Depends(get_db)) -> ProfileService:
 
 def _flatten_payload(obj: Any) -> Dict[str, Any]:
     """
-    Extract profile fields from payload. Laravel may send wrapped in "data" or "user".
+    Extract profile fields from payload. Laravel may send wrapped in "data", "user", or "body".
     Returns flat dict; preserves bool/int/float, stringifies the rest.
     """
     if not obj or not isinstance(obj, dict):
         return {}
-    # Unwrap Laravel-style nested payload: { "data": {...} } or { "user": {...} }
-    inner = obj.get("data") or obj.get("user")
+    # Unwrap Laravel-style nested payload: { "data": {...} } or { "user": {...} } or { "body": {...} }
+    inner = obj.get("data") or obj.get("user") or obj.get("body")
     if isinstance(inner, dict):
         obj = inner
+    elif isinstance(inner, str):
+        # Client may send body as JSON string
+        try:
+            parsed = json.loads(inner)
+            if isinstance(parsed, dict):
+                obj = parsed
+        except (json.JSONDecodeError, TypeError):
+            pass
     out: Dict[str, Any] = {}
     for k, v in obj.items():
+        if k == "body":
+            continue  # Never pass raw "body" to service
         if v is None or v in ("undefined", "null"):
             continue
         if isinstance(v, (dict, list)):
@@ -54,6 +66,7 @@ async def _parse_profile_update_body(request: Request) -> Tuple[Dict[str, Any], 
     """
     Parse request body as JSON, multipart/form-data, or application/x-www-form-urlencoded.
     Laravel parity: accepts $request->all() style (form or JSON). Never raises.
+    Handles "body" form field containing JSON string (common client pattern).
     Returns (payload_dict, photo_file_or_none). Photo is raw UploadFile for multipart.
     """
     payload: Dict[str, Any] = {}
@@ -61,31 +74,63 @@ async def _parse_profile_update_body(request: Request) -> Tuple[Dict[str, Any], 
     content_type = (request.headers.get("content-type") or "").lower().split(";")[0].strip()
 
     try:
+        # Try multipart first - some clients send multipart with photo + JSON in "body" field
         if "multipart/form-data" in content_type:
             form = await request.form()
+            body_json_str: Optional[str] = None
             for key in form.keys():
                 val = form.get(key)
                 if key == "photo":
                     if val and hasattr(val, "read"):
                         photo_file = val
                     continue
+                if key == "body" and val is not None:
+                    # Client may send profile data as JSON string in "body" field
+                    s = val if isinstance(val, str) else (str(val) if val else None)
+                    if s and s not in ("undefined", "null"):
+                        body_json_str = s
+                    continue
                 if val is not None and not (hasattr(val, "read") and callable(getattr(val, "read", None))):
                     s = val if isinstance(val, str) else (str(val) if val else None)
                     if s and s not in ("undefined", "null"):
                         payload[key] = s
+            # Merge parsed body into payload (body takes precedence for overlapping keys)
+            if body_json_str:
+                try:
+                    parsed = json.loads(body_json_str)
+                    if isinstance(parsed, dict):
+                        flattened = _flatten_payload(parsed)
+                        payload = {**payload, **flattened}
+                except (json.JSONDecodeError, TypeError):
+                    pass
         elif "application/x-www-form-urlencoded" in content_type:
             form = await request.form()
+            body_json_str = None
             for key, val in form.items():
+                if key == "body" and val is not None and isinstance(val, str):
+                    body_json_str = val
+                    continue
                 if val is not None and isinstance(val, str) and val not in ("undefined", "null"):
                     payload[key] = val
+            if body_json_str:
+                try:
+                    parsed = json.loads(body_json_str)
+                    if isinstance(parsed, dict):
+                        flattened = _flatten_payload(parsed)
+                        payload = {**payload, **flattened}
+                except (json.JSONDecodeError, TypeError):
+                    pass
         else:
-            # JSON or unknown Content-Type: try JSON (handles empty/invalid gracefully)
+            # JSON: try request.json() - handles application/json
             try:
                 body = await request.json()
                 if isinstance(body, dict):
                     payload = _flatten_payload(body)
+                elif isinstance(body, str):
+                    parsed = json.loads(body)
+                    if isinstance(parsed, dict):
+                        payload = _flatten_payload(parsed)
             except Exception:
-                # Empty body, invalid JSON, or wrong Content-Type - treat as no body
                 pass
     except Exception:
         pass
@@ -133,16 +178,18 @@ def get_profile_social(
     )
 
 
-def _save_profile_photo(content: bytes, filename: str) -> Optional[str]:
-    """Save photo to uploads dir and return URL. Laravel stores URL on user.photo, not files table."""
+def _save_profile_photo(content: bytes, filename: str, mime_type: Optional[str] = None) -> Optional[str]:
+    """Save photo to uploads dir (compressed). Return URL. Laravel stores URL on user.photo."""
     try:
+        compressed, ext = compress_image(content, filename, mime_type)
+        if ext and not ext.startswith("."):
+            ext = f".{ext}"
+        safe_name = f"{uuid_lib.uuid4().hex}{ext}"
         upload_dir = os.environ.get("UPLOAD_DIR", "uploads")
         os.makedirs(upload_dir, exist_ok=True)
-        ext = os.path.splitext(filename)[1] or ".bin"
-        safe_name = f"{uuid_lib.uuid4().hex}{ext}"
         file_path = os.path.join(upload_dir, safe_name)
         with open(file_path, "wb") as fp:
-            fp.write(content)
+            fp.write(compressed)
         return f"/uploads/{safe_name}"
     except Exception:
         return None
@@ -158,14 +205,16 @@ async def update_profile(
     """
     POST /profile/update — status, message, user.
     Accepts JSON, multipart/form-data, or application/x-www-form-urlencoded.
-    Photo upload: saves to uploads/ and stores URL on user.photo (Laravel parity).
+    Photo: compress then save to uploads/, store URL on user.photo.
+    Handles "body" form field with JSON string (client pattern).
     """
     payload, photo_file = await _parse_profile_update_body(request)
 
     if photo_file:
         try:
             content = await photo_file.read()
-            url = _save_profile_photo(content, photo_file.filename or "photo")
+            mime = getattr(photo_file, "content_type", None) or None
+            url = _save_profile_photo(content, photo_file.filename or "photo", mime)
             if url:
                 payload["photo"] = url
         except Exception:
