@@ -16,6 +16,7 @@ def get_todo_service(db: Session = Depends(get_db)) -> UserTodoService:
 
 
 @router.get("", dependencies=[Depends(require_auth)])
+@router.get("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def list_user_todo(
     service: UserTodoService = Depends(get_todo_service),
     current_user_id: int = Depends(get_current_user_id),
@@ -25,6 +26,7 @@ def list_user_todo(
 
 
 @router.post("", dependencies=[Depends(require_auth)])
+@router.post("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def create_user_todo(
     body: dict = None,
     service: UserTodoService = Depends(get_todo_service),

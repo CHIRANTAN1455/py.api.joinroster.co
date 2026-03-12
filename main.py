@@ -89,6 +89,7 @@ def create_app() -> FastAPI:
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
+        redirect_slashes=False,  # Prevent 307 redirects on trailing slash; routes handle both forms
     )
 
     configure_cors(app)

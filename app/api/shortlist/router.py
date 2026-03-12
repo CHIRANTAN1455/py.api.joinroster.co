@@ -16,6 +16,7 @@ def get_shortlist_service(db: Session = Depends(get_db)) -> ShortlistService:
 
 
 @router.get("", dependencies=[Depends(require_auth)])
+@router.get("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def list_shortlist(
     service: ShortlistService = Depends(get_shortlist_service),
     current_user_id: int = Depends(get_current_user_id),

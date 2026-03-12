@@ -15,6 +15,7 @@ def get_file_service(db: Session = Depends(get_db)) -> FileService:
 
 
 @router.post("", dependencies=[Depends(require_auth)])
+@router.post("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def file_upload(
     file: UploadFile = File(...),
     service: FileService = Depends(get_file_service),

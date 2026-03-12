@@ -15,6 +15,7 @@ def get_profile_visit_service(db: Session = Depends(get_db)) -> ProfileVisitServ
 
 
 @router.post("", dependencies=[Depends(require_auth)])
+@router.post("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def profile_visit(
     body: dict = None,
     service: ProfileVisitService = Depends(get_profile_visit_service),

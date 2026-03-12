@@ -18,6 +18,7 @@ def get_chat_service(db: Session = Depends(get_db)) -> ChatService:
 
 
 @router.get("", dependencies=[Depends(require_auth)])
+@router.get("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def list_chats(
     service: ChatService = Depends(get_chat_service),
     current_user_id: int = Depends(get_current_user_id),

@@ -16,6 +16,7 @@ def get_matching_service(db: Session = Depends(get_db)) -> MatchingService:
 
 
 @router.get("", dependencies=[Depends(require_auth)])
+@router.get("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def search_matching(
     page: int = Query(1, ge=1),
     service: MatchingService = Depends(get_matching_service),
@@ -55,6 +56,7 @@ def get_matching_by_token(token: str, service: MatchingService = Depends(get_mat
 
 
 @router.post("", dependencies=[Depends(require_auth)])
+@router.post("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def create_matching(
     service: MatchingService = Depends(get_matching_service),
     current_user_id: int = Depends(get_current_user_id),

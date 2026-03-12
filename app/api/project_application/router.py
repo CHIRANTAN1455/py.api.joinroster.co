@@ -24,6 +24,7 @@ def get_service(db: Session = Depends(get_db)) -> ProjectApplicationService:
 
 
 @router.get("", dependencies=[Depends(require_auth)])
+@router.get("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def list_project_applications(
     page: int = Query(1, ge=1),
     service: ProjectApplicationService = Depends(get_service),

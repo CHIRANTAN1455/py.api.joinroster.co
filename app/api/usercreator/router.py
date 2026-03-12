@@ -17,6 +17,7 @@ def get_editor_service(db: Session = Depends(get_db)) -> EditorService:
 
 
 @router.get("", dependencies=[Depends(require_auth)])
+@router.get("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def list_usercreators(
     page: int = Query(1, ge=1),
     service: EditorService = Depends(get_editor_service),
@@ -52,6 +53,7 @@ def usercreator_similar(service: EditorService = Depends(get_editor_service)):
 
 
 @router.post("", dependencies=[Depends(require_auth)])
+@router.post("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def create_usercreator(service: EditorService = Depends(get_editor_service)):
     return success_with_message("Creator Created Successfully", creator={})
 

@@ -16,6 +16,7 @@ def get_payment_service(db: Session = Depends(get_db)) -> PaymentService:
 
 
 @router.get("", dependencies=[Depends(require_auth)])
+@router.get("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def list_payments(
     service: PaymentService = Depends(get_payment_service),
     current_user_id: int = Depends(get_current_user_id),
@@ -25,6 +26,7 @@ def list_payments(
 
 
 @router.post("", dependencies=[Depends(require_auth)])
+@router.post("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def create_payment(
     body: dict = None,
     service: PaymentService = Depends(get_payment_service),

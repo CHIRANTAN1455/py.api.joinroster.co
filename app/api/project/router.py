@@ -40,6 +40,7 @@ def get_hackathon_no_auth(id: str, controller: ProjectController = Depends(get_c
 
 
 @router.get("/public/no-auth")
+@router.get("/public/no-auth/", include_in_schema=False)
 def get_public_projects_no_auth(
     page: int = Query(1, ge=1),
     controller: ProjectController = Depends(get_controller),
@@ -102,6 +103,7 @@ def project_alerts_2_days(
 
 
 @router.get("/public", dependencies=[Depends(require_auth)])
+@router.get("/public/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def get_public_projects(
     page: int = Query(1, ge=1),
     controller: ProjectController = Depends(get_controller),

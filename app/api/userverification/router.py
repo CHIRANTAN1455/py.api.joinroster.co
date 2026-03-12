@@ -16,6 +16,7 @@ def get_service(db: Session = Depends(get_db)) -> UserVerificationService:
 
 
 @router.get("", dependencies=[Depends(require_auth)])
+@router.get("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def list_userverification(
     service: UserVerificationService = Depends(get_service),
     current_user_id: int = Depends(get_current_user_id),
@@ -25,6 +26,7 @@ def list_userverification(
 
 
 @router.post("", dependencies=[Depends(require_auth)])
+@router.post("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def create_userverification(
     service: UserVerificationService = Depends(get_service),
     current_user_id: int = Depends(get_current_user_id),

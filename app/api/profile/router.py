@@ -93,6 +93,7 @@ async def _parse_profile_update_body(request: Request) -> Tuple[Dict[str, Any], 
 
 
 @router.get("", dependencies=[Depends(require_auth)])
+@router.get("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def get_profile(
     profile_service: ProfileService = Depends(get_profile_service),
     current_user_id: int = Depends(get_current_user_id),

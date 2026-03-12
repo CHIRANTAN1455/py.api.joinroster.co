@@ -30,6 +30,7 @@ def userproject_public(
 
 
 @router.get("", dependencies=[Depends(require_auth)])
+@router.get("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def list_userprojects(
     page: int = Query(1, ge=1),
     service: ProjectService = Depends(get_project_service),
@@ -49,6 +50,7 @@ def userproject_info(
 
 
 @router.post("", dependencies=[Depends(require_auth)])
+@router.post("/", dependencies=[Depends(require_auth)], include_in_schema=False)
 def create_userproject(
     service: ProjectService = Depends(get_project_service),
     current_user_id: int = Depends(get_current_user_id),
