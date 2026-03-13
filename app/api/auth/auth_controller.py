@@ -55,15 +55,42 @@ class AuthController:
         }
 
     def register(self, payload: AuthRegisterRequest) -> Dict[str, Any]:
+        # Basic uniqueness check to mirror Laravel's "email must be unique" rule.
+        existing = (
+            self.db.query(User)
+            .filter(User.email == (payload.email or "").strip())
+            .first()
+        )
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "status": "error",
+                    "message": "The email has already been taken.",
+                    "fields": {"email": ["The email has already been taken."]},
+                },
+            )
+
         user = User(
-            email=payload.email or "",
+            email=(payload.email or "").strip(),
             phone=payload.phone,
-            password="__hashed__",
+            password="__hashed__",  # TODO: hash to match Laravel
             policy_accepted=payload.policy_accepted,
         )
-        self.db.add(user)
-        self.db.commit()
-        self.db.refresh(user)
+        try:
+            self.db.add(user)
+            self.db.commit()
+            self.db.refresh(user)
+        except Exception as exc:  # pragma: no cover - diagnostic path
+            self.db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={
+                    "status": "error",
+                    "message": "Registration failed.",
+                    "error": str(exc),
+                },
+            )
         token_result = self.auth_service.login(username=user.email, password=payload.password)
         access_token = token_result["access_token"] if token_result else ""
         return {
