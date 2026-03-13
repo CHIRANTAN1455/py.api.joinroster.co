@@ -71,12 +71,18 @@ def _laravel_validation_exception_handler(
 def _database_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Return Laravel-shaped JSON when DB is unreachable (e.g. MySQL not running or wrong DB_HOST)."""
     logging.exception("Database error: %s", exc)
+    settings = get_settings()
+    # Default Laravel-style body
+    body = {
+        "status": "error",
+        "message": "Database unavailable. Check that MySQL is running and DB_HOST/DB_DATABASE in .env are correct.",
+    }
+    # In non-production environments, surface the exact DB error for debugging.
+    if getattr(settings, "APP_ENV", "local") != "production":
+        body["error"] = str(exc)
     return JSONResponse(
         status_code=503,
-        content={
-            "status": "error",
-            "message": "Database unavailable. Check that MySQL is running and DB_HOST/DB_DATABASE in .env are correct.",
-        },
+        content=body,
     )
 
 
