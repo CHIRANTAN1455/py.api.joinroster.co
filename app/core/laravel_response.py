@@ -149,7 +149,7 @@ def lookup_to_laravel_resource(record: Any) -> Dict[str, Any]:
     """Generic lookup (content_vertical, platform, software, equipment, creative_style, content_form, job_type): uuid, icon, name, description."""
     return {
         "uuid": getattr(record, "uuid", None),
-        "icon": getattr(record, "icon", None),
+        "icon": to_absolute_url(getattr(record, "icon", None) or "") or None,
         "name": getattr(record, "name", None),
         "description": getattr(record, "description", None),
     }
