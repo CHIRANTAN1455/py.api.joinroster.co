@@ -35,16 +35,15 @@ def _rate_limit(request: Request, key_prefix: str, max_attempts: int, decay_seco
 async def ensure_stateful_request(request: Request) -> None:
     """
     Lightweight analogue for Laravel's EnsureFrontendRequestsAreStateful.
-    This checks for the presence of cookies or Authorization headers to
-    ensure the request is associated with a client session.
+
+    In Laravel, the API rate limiters (`api.strict`, `api.lenient`, etc.) do
+    NOT require the request to be authenticated; they simply key buckets by
+    client/IP. Authentication is enforced separately via `auth:sanctum`.
+
+    To match that behaviour and avoid spurious 401s on public endpoints
+    that only use rate limiting, this helper is currently a no-op.
     """
-    if not request.cookies and "authorization" not in request.headers:
-        # Laravel usually allows non-stateful too, but when this is applied
-        # we enforce that at least some client state is present.
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"status": "error", "message": "Unauthenticated."},
-        )
+    return None
 
 
 async def strict_rate_limit(request: Request, _: None = Depends(ensure_stateful_request)) -> None:
